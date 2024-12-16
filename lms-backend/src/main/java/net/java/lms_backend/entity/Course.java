@@ -15,9 +15,14 @@ public class Course {
     private String duration;
     @ElementCollection
     private List<String> mediaFiles;
-    /*@ManyToOne
-    @JoinColumn(name = "instructor_id")
-    private User instructor;*/
+    // Many-to-One relationship with User
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "instructor_id", nullable = false) // Foreign key in the course table
+    private Instructor instructor;
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Lesson> lessons;
 
