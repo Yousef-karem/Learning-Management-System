@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -20,4 +21,9 @@ public class User {
     String email;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Course> courses=new ArrayList<Course>();
+
+
+    public Long getId() {
+        return id;
+    }
 }
