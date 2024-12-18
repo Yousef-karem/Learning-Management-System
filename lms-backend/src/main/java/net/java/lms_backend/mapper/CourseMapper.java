@@ -1,9 +1,10 @@
 package net.java.lms_backend.mapper;
 
 import net.java.lms_backend.dto.Coursedto;
-import net.java.lms_backend.entity.Course;
-import net.java.lms_backend.entity.Instructor;
-import net.java.lms_backend.entity.User;
+import net.java.lms_backend.entity.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CourseMapper {
     public static Coursedto mapToCoursedto(Course course){
@@ -12,12 +13,12 @@ public class CourseMapper {
                 course.getTitle(),
                 course.getDescription(),
                 course.getDuration(),
-                course.getMediaFiles(),
+                course.getMediaFiles().stream()
+                        .map(mediaFile -> new MediaFiles(mediaFile.getId(), mediaFile.getFileName()))
+                        .collect(Collectors.toList()),
                 course.getUser().getId(),
                 course.getInstructor().getId()
-
-
-                );
+        );
 
 
     }
@@ -29,6 +30,7 @@ public class CourseMapper {
         course.setDuration(coursedto.getDuration());
         course.setMediaFiles(coursedto.getMediaFiles());
         course.setUser(coursedto.getUser());
+        course.setInstructor(coursedto.getInstructor());
         return course;
     }
 

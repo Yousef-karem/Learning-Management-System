@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -15,16 +16,13 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
     @Column(nullable = false)
     private String title;
-
     private String description;
-
     private String duration;
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MediaFiles> mediaFiles = new ArrayList<>();
 
-    @ElementCollection
-    private List<String> mediaFiles;
 
     // Many-to-One relationship with User
     @ManyToOne
@@ -34,13 +32,11 @@ public class Course {
     @ManyToOne
     @JoinColumn(name = "instructor_id", nullable = false) // Foreign key in the course table
     private Instructor instructor;
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
-   /*
-    private List<Lesson> lessons;
-*/
-  
 
-    public Course(long id, String title, String description, String duration, List<String> mediaFiles, User user, Instructor instructor) {
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<Lesson> lessons = new ArrayList<>();
+
+    public Course(long id, String title, String description, String duration, List<MediaFiles> mediaFiles, User user, Instructor instructor) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -48,6 +44,19 @@ public class Course {
         this.mediaFiles = mediaFiles;
         this.user = user;
         this.instructor = instructor;
+    }
+    public void addLesson(Lesson lesson) {
+        lessons.add(lesson);
+        lesson.setCourse(this);
+    }
+
+    public void removeLesson(Lesson lesson) {
+        lessons.remove(lesson);
+        lesson.setCourse(null);
+    }
+
+    public List<Lesson> getLessons() {
+        return lessons;
     }
 
     public long getId() {
@@ -74,8 +83,18 @@ public class Course {
         return user;
     }
 
-    public List<String> getMediaFiles() {
+    public List<MediaFiles> getMediaFiles() {
+
         return mediaFiles;
+    }
+    public void addMediaFile(MediaFiles mediaFile) {
+        mediaFiles.add(mediaFile);
+        mediaFile.setCourse(this);
+    }
+
+    public void removeMediaFile(MediaFiles mediaFile) {
+        mediaFiles.remove(mediaFile);
+        mediaFile.setCourse(null);
     }
 
     public void setId(long id) {
@@ -102,21 +121,14 @@ public class Course {
         this.duration = duration;
     }
 
-    public void setMediaFiles(List<String> mediaFiles) {
+    public void setMediaFiles(List<MediaFiles> mediaFiles) {
         this.mediaFiles = mediaFiles;
     }
 
 
     public Course(){
 
-}
+    }
 
-
-
-    @OneToOne(mappedBy = "course", cascade = CascadeType.ALL)
-    private QuestionBank questionBank;
-
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
-    private List<Assessment> assessments;
 
 }

@@ -11,9 +11,9 @@ public class Lesson {
     private String title;
     @Column(length =1000)
     private String content;
-    /*@ManyToOne
+    @ManyToOne
     @JoinColumn(name = "course_id")
-    private Course course;*/
+    private Course course;
 
     public void setCourse(Course course) {
         this.course=course;
