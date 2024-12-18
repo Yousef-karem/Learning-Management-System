@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.java.lms_backend.entity.Instructor;
 import net.java.lms_backend.entity.Lesson;
+import net.java.lms_backend.entity.MediaFiles;
 import net.java.lms_backend.entity.User;
 import java.util.List;
 
@@ -23,10 +24,12 @@ public class Coursedto {
     private Long userId;
     private Instructor instructor;
     private List<Lesson> lessons;
-    private List<String> mediaFiles;
+    private List<Long> lessonIds;
+    private List<MediaFiles> mediaFiles;
 
 
-    public Coursedto(long id, String title, String description, String duration, List<String> mediaFiles, Long userid ,Long instructorId) {
+
+    public Coursedto(long id, String title, String description, String duration, List<MediaFiles> mediaFiles, Long userid ,Long instructorId) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -34,6 +37,9 @@ public class Coursedto {
         this.mediaFiles = mediaFiles;
         this.userId = userid;
         this.instructorId = instructorId;
+    }
+
+    public Coursedto(long id, String title, String description, String duration, List<MediaFiles> mediaFiles, Long id1, Long id2, List<Long> lessonIds) {
     }
 
 
@@ -56,7 +62,7 @@ public class Coursedto {
         return title;
     }
 
-    public List<String> getMediaFiles() {
+    public List<MediaFiles> getMediaFiles() {
         return mediaFiles;
     }
 

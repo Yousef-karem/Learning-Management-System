@@ -11,8 +11,23 @@ public class Lesson {
     private String title;
     @Column(length =1000)
     private String content;
-    /*@ManyToOne
+    @ManyToOne
     @JoinColumn(name = "course_id")
-    private Course course;*/
+    private Course course;
 
+    public void setCourse(Course course) {
+        this.course=course;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public Long getId() {
+        return id;
+    }
 }

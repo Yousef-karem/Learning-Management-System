@@ -4,14 +4,16 @@ import lombok.Getter;
 import lombok.Setter;
 import net.java.lms_backend.Repositrory.CourseRepository;
 import net.java.lms_backend.Repositrory.InstructorRepository;
+import net.java.lms_backend.Repositrory.LessonRepositery;
 import net.java.lms_backend.Repositrory.UserRepository;
 import net.java.lms_backend.dto.Coursedto;
-import net.java.lms_backend.entity.Course;
-import net.java.lms_backend.entity.Instructor;
-import net.java.lms_backend.entity.User;
+import net.java.lms_backend.entity.*;
 import net.java.lms_backend.mapper.CourseMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,11 +24,13 @@ public class CourseService {
     private final CourseRepository courseRepo;
     private final UserRepository userRepo;
     private final InstructorRepository instructorRepo;
+    private final LessonRepositery lessonRepo;
 
-    public CourseService(CourseRepository courseRepo, UserRepository userRepo, InstructorRepository instructorRepo) {
+    public CourseService(CourseRepository courseRepo, UserRepository userRepo, InstructorRepository instructorRepo,LessonRepositery lessonRepo) {
         this.courseRepo = courseRepo;
         this.userRepo = userRepo;
         this.instructorRepo = instructorRepo;
+        this.lessonRepo=lessonRepo;
     }
 
     public Coursedto CreateCourse(Coursedto coursedto) {
@@ -51,7 +55,7 @@ public class CourseService {
         return courses.stream().map(course -> CourseMapper.mapToCoursedto(course)).collect(Collectors.toList());
 
     }
-    public List<Course> getCoursesByInstructor(Long instructorId){
+    public List<Coursedto> getCoursesByInstructor(Long instructorId){
         return courseRepo.findByInstructorId(instructorId);
     }
     public void deleteCourse(Long CourseId){
@@ -64,4 +68,38 @@ public class CourseService {
 
 
     }
+    public Lesson addLessonToCourse(Long courseId, Lesson lesson) {
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+
+        course.addLesson(lesson);
+        return lessonRepo.save(lesson);
+    }
+    public void uploadMediaFiles(Long courseId, List<MultipartFile> files) {
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+
+        for (MultipartFile file : files) {
+            String uploadDir = "C:/uploads/uploads/" + courseId;
+            File directory = new File(uploadDir);
+
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            try {
+                String filePath = uploadDir + "/" + file.getOriginalFilename();
+                file.transferTo(new File(filePath));
+                MediaFiles mediaFile = new MediaFiles();
+                mediaFile.setFileName(file.getOriginalFilename());
+                course.addMediaFile(mediaFile);
+
+            } catch (IOException e) {
+                throw new RuntimeException("Error saving file: " + file.getOriginalFilename(), e);
+            }
+        }
+        courseRepo.save(course);
+    }
+
+
 }
