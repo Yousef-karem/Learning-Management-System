@@ -2,7 +2,9 @@ package net.java.lms_backend.controller;
 
 import net.java.lms_backend.Service.CourseService;
 import net.java.lms_backend.dto.Coursedto;
+import net.java.lms_backend.dto.Enrollmentdto;
 import net.java.lms_backend.dto.LessonDTO;
+import net.java.lms_backend.dto.StudentDTO;
 import net.java.lms_backend.entity.Course;
 import net.java.lms_backend.entity.Lesson;
 import org.springframework.http.HttpStatus;
@@ -59,7 +61,33 @@ public class CourseController {
         courseService.uploadMediaFiles(id, files);
         return ResponseEntity.ok().build();
     }
+    @GetMapping("/available")
+    public ResponseEntity<List<Coursedto>> getAvailableCourses() {
+        List<Coursedto> courses = courseService.ViewAllCourse();
+        return ResponseEntity.ok(courses);
+    }
 
+    @PostMapping("/{courseId}/enroll")
+    public ResponseEntity<Void> enrollInCourse(@PathVariable Long courseId, @RequestBody Enrollmentdto enrollmentRequest) {
+        courseService.enrollStudentInCourse(courseId, enrollmentRequest.getStudentId());
+        return ResponseEntity.ok().build();
+    }
+    @GetMapping("/{courseId}/enrollments")
+    public ResponseEntity<List<StudentDTO>> getEnrolledStudents(@PathVariable Long courseId) {
+        List<StudentDTO> students = courseService.getEnrolledStudents(courseId);
+        return ResponseEntity.ok(students);
+    }
+    @PostMapping("/{courseId}/lessons/{lessonId}/generate-otp")
+    public ResponseEntity<String> generateOtp(@PathVariable Long lessonId) {
+        String otp = courseService.generateOtp(lessonId);
+        return ResponseEntity.ok(otp);
+    }
+
+    @PostMapping("/{courseId}/lessons/{lessonId}/validate-otp")
+    public ResponseEntity<Boolean> validateOtp(@PathVariable Long lessonId,@RequestParam String otp){
+        boolean attend= courseService.validateOtp(lessonId,otp);
+        return ResponseEntity.ok(attend);
+    }
 
 
 }
