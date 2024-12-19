@@ -2,13 +2,13 @@ package net.java.lms_backend.Service;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.java.lms_backend.Repositrory.CourseRepository;
-import net.java.lms_backend.Repositrory.InstructorRepository;
-import net.java.lms_backend.Repositrory.LessonRepositery;
-import net.java.lms_backend.Repositrory.UserRepository;
+import net.java.lms_backend.Repositrory.*;
 import net.java.lms_backend.dto.Coursedto;
+import net.java.lms_backend.dto.Enrollmentdto;
+import net.java.lms_backend.dto.StudentDTO;
 import net.java.lms_backend.entity.*;
 import net.java.lms_backend.mapper.CourseMapper;
+import org.antlr.v4.runtime.misc.LogManager;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+import net.java.lms_backend.mapper.StudentMapper;
 
 @Getter
 @Setter
@@ -25,12 +26,18 @@ public class CourseService {
     private final UserRepository userRepo;
     private final InstructorRepository instructorRepo;
     private final LessonRepositery lessonRepo;
+    private final StudentRepo studentRepo;
+    private final EnrollmentRepo enrollmentRepo;
+    private final AttendanceRepo attendanceRepo;
 
-    public CourseService(CourseRepository courseRepo, UserRepository userRepo, InstructorRepository instructorRepo,LessonRepositery lessonRepo) {
+    public CourseService(CourseRepository courseRepo, UserRepository userRepo, InstructorRepository instructorRepo,LessonRepositery lessonRepo,EnrollmentRepo enrollmentRepo,StudentRepo studentRepo,AttendanceRepo attendanceRepo) {
         this.courseRepo = courseRepo;
         this.userRepo = userRepo;
         this.instructorRepo = instructorRepo;
         this.lessonRepo=lessonRepo;
+        this.enrollmentRepo=enrollmentRepo;
+        this.studentRepo=studentRepo;
+        this.attendanceRepo=attendanceRepo;
     }
 
     public Coursedto CreateCourse(Coursedto coursedto) {
@@ -55,6 +62,7 @@ public class CourseService {
         return courses.stream().map(course -> CourseMapper.mapToCoursedto(course)).collect(Collectors.toList());
 
     }
+
     public List<Coursedto> getCoursesByInstructor(Long instructorId){
         return courseRepo.findByInstructorId(instructorId);
     }
@@ -65,9 +73,8 @@ public class CourseService {
     public Coursedto getCourseById(Long id) {
         Course course=courseRepo.findById(id).orElseThrow(() -> new RuntimeException("Course not found with id " + id));
         return CourseMapper.mapToCoursedto(course);
-
-
     }
+
     public Lesson addLessonToCourse(Long courseId, Lesson lesson) {
         Course course = courseRepo.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
@@ -99,6 +106,47 @@ public class CourseService {
             }
         }
         courseRepo.save(course);
+    }
+    public void enrollStudentInCourse(Long courseId, Long studentId) {
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+
+        Student student = studentRepo.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found with id: " + studentId));
+
+        Enrollment enrollment = new Enrollment();
+        enrollment.setCourse(course);
+        enrollment.setStudent(student);
+
+        enrollmentRepo.save(enrollment);
+    }
+
+    public List<StudentDTO> getEnrolledStudents(Long courseId) {
+        List<Enrollment> enrollments = enrollmentRepo.findByCourseId(courseId);
+        return enrollments.stream()
+                .map(enrollment -> StudentMapper.mapToStudentDTO(enrollment.getStudent()))
+                .collect(Collectors.toList());
+    }
+    public String generateOtp(Long lessonId){
+        Lesson lesson=lessonRepo.findById(lessonId).orElseThrow(()->new RuntimeException("Lesson with id not found : " + lessonId));
+        String otp = String.valueOf((int)(Math.random() * 9999)+1000000);
+        Attendance attendance = new Attendance();
+        attendance.setLesson(lesson);
+        attendance.setOtp(otp);
+        attendance.setActive(true);
+        attendanceRepo.save(attendance);
+        return otp;
+
+    }
+    public boolean validateOtp(Long lessonId, String otp) {
+        Attendance attendance = attendanceRepo.findByLessonIdAndOtp(lessonId, otp);
+        if (attendance != null && attendance.isActive()) {
+            attendance.setActive(false);
+            attendanceRepo.save(attendance);
+            return true;
+        }
+
+        return false;
     }
 
 

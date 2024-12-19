@@ -2,11 +2,15 @@ package net.java.lms_backend.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import  net.java.lms_backend.entity.Attendance;
+import java.util.List;
+
 @Entity
 public class Lesson {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     @Column(nullable = false)
     private String title;
     @Column(length =1000)
@@ -14,6 +18,10 @@ public class Lesson {
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
+
+    @OneToMany(mappedBy = "lesson")
+    private List<Attendance> attendances = new ArrayList<>();
+
 
     public void setCourse(Course course) {
         this.course=course;
