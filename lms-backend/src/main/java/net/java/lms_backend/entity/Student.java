@@ -1,10 +1,20 @@
 package net.java.lms_backend.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 public class Student extends User{
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Enrollment> enrollments;
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<QuizAttempt> quizAttempts;
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<Submission> submissions;
+
     public Student(String username, String password, String email)
     {
         this.role=2;
@@ -16,4 +26,22 @@ public class Student extends User{
     {
         this.role=2;
     }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+
+    public void setUsername(String username) {
+        this.username=username;
+    }
+
+    public void setEmail(String email) {
+        this.email=email;
+    }
+
 }
