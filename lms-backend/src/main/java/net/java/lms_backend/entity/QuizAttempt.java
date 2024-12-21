@@ -20,6 +20,6 @@ public class QuizAttempt {
 
     private int score;
 
-    @OneToOne(mappedBy = "quizAttempt", cascade = CascadeType.ALL)
-    private Feedback feedback;
+//    @OneToOne(mappedBy = "quizAttempt", cascade = CascadeType.ALL)
+//    private Feedback feedback;
 }

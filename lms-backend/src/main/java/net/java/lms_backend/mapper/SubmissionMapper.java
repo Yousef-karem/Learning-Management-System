@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class SubmissionMapper {
     public Submission toEntity(SubmissionDTO dto) {
         Submission submission = new Submission();
-        submission.setFileUrl(dto.getFileUrl());
+        submission.setFileName(dto.getFileName());
         submission.setSubmittedAt(dto.getSubmittedAt());
         return submission;
     }
@@ -16,7 +16,7 @@ public class SubmissionMapper {
     public SubmissionDTO toDTO(Submission submission) {
         SubmissionDTO dto = new SubmissionDTO();
         dto.setId(submission.getId());
-        dto.setFileUrl(submission.getFileUrl());
+        dto.setFileName(submission.getFileName());
         dto.setSubmittedAt(submission.getSubmittedAt());
         dto.setAssignmentId(submission.getAssignment().getId());
         dto.setStudentId(submission.getStudent().getId());

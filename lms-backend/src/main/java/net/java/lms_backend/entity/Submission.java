@@ -20,28 +20,27 @@ public class Submission {
     @ManyToOne
     private Student student;
 
-    private LocalDateTime submittedAt;
+    private LocalDateTime submittedAt = LocalDateTime.now();
 
-    private String fileUrl; // File location
+    private String fileName;
 
-    @Setter
-    @OneToOne(mappedBy = "submission", cascade = CascadeType.ALL)
-    private Feedback feedback;
+//    @OneToOne(mappedBy = "submission", cascade = CascadeType.ALL)
+//    private Feedback feedback = null;
 
-    private Double grade; // Grading by instructor
+    private Double grade = null; // Grading by instructor
 
     public Submission() {}
 
-    public Submission(Assignment assignment, Student student, LocalDateTime submittedAt, String fileUrl) {
+    public Submission(Assignment assignment, Student student, String fileUrl) {
         this.assignment = assignment;
         this.student = student;
-        this.submittedAt = submittedAt;
-        this.fileUrl = fileUrl;
+        this.submittedAt = LocalDateTime.now();
+        this.fileName = fileUrl;
     }
 
-    public void setFeedback(Feedback feedback) {
-        this.feedback = feedback;
-    }
+//    public void setFeedback(Feedback feedback) {
+//        this.feedback = feedback;
+//    }
 
     public void setGrade(Double grade) {
         this.grade = grade;
@@ -59,8 +58,8 @@ public class Submission {
         this.submittedAt = submittedAt;
     }
 
-    public void setFileUrl(String fileUrl) {
-        this.fileUrl = fileUrl;
+    public void setFileName(String fileUrl) {
+        this.fileName = fileUrl;
     }
     public long getId() {
         return id;
@@ -77,8 +76,8 @@ public class Submission {
         return submittedAt;
     }
 
-    public String getFileUrl() {
-        return fileUrl;
+    public String getFileName() {
+        return fileName;
     }
 
 
