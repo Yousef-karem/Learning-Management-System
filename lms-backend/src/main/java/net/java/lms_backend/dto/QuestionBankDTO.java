@@ -1,4 +1,4 @@
-package net.java.lms_backend.dto;
-
-public class QuestionBankDTO {
-}
+//package net.java.lms_backend.dto;
+//
+//public class QuestionBankDTO {
+//}

@@ -1,10 +1,7 @@
 package net.java.lms_backend.controller;
 
 import net.java.lms_backend.Service.CourseService;
-import net.java.lms_backend.dto.Coursedto;
-import net.java.lms_backend.dto.Enrollmentdto;
-import net.java.lms_backend.dto.LessonDTO;
-import net.java.lms_backend.dto.StudentDTO;
+import net.java.lms_backend.dto.*;
 import net.java.lms_backend.entity.Course;
 import net.java.lms_backend.entity.Lesson;
 import org.springframework.http.HttpStatus;
@@ -89,5 +86,17 @@ public class CourseController {
         return ResponseEntity.ok(attend);
     }
 
+
+    @PostMapping("/{courseId}/add-questions")
+    public ResponseEntity<Void> addQuestionsToCourse(@PathVariable Long courseId, @RequestBody List<QuestionDTO> questionDTOs) {
+        courseService.addQuestionsToCourse(courseId, questionDTOs);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{courseId}/questions")
+    public ResponseEntity<List<QuestionDTO>> getQuestionsByCourseId(@PathVariable Long courseId) {
+        List<QuestionDTO> questions = courseService.getQuestionsByCourseId(courseId);
+        return ResponseEntity.ok(questions);
+    }
 
 }

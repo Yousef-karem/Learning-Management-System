@@ -4,9 +4,11 @@ import lombok.Getter;
 import lombok.Setter;
 import net.java.lms_backend.Repositrory.*;
 import net.java.lms_backend.dto.Coursedto;
+import net.java.lms_backend.dto.QuestionDTO;
 import net.java.lms_backend.dto.StudentDTO;
 import net.java.lms_backend.entity.*;
 import net.java.lms_backend.mapper.CourseMapper;
+import net.java.lms_backend.mapper.QuestionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -148,4 +150,25 @@ public class CourseService {
     }
 
 
+    public void addQuestionsToCourse(Long courseId, List<QuestionDTO> questionDTOs) {
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+
+        for (QuestionDTO questionDTO : questionDTOs) {
+            Question question = QuestionMapper.mapToQuestion(questionDTO, course);
+            course.addQuestion(question);
+        }
+        courseRepo.save(course);
+    }
+
+    public List<QuestionDTO> getQuestionsByCourseId(Long courseId) {
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+
+        List<Question> questions = course.getQuestionsBank();
+
+        return questions.stream()
+                .map(QuestionMapper::mapToQuestionDTO)
+                .collect(Collectors.toList());
+    }
 }
