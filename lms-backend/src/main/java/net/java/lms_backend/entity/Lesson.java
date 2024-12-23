@@ -38,4 +38,16 @@ public class Lesson {
     public Long getId() {
         return id;
     }
+
+    public void setId(long l) {
+        this.id=id;
+    }
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public String getTitle() {
+        return title;
+    }
 }

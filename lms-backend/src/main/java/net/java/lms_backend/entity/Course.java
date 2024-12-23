@@ -38,7 +38,7 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Lesson> lessons = new ArrayList<>();
 
-    public Course(long id, String title, String description, String duration, List<MediaFiles> mediaFiles, User user, Instructor instructor) {
+    public Course(long id, String title, String description, String duration, List<MediaFiles> mediaFiles, Instructor instructor) {
         this.id = id;
         this.title = title;
         this.description = description;

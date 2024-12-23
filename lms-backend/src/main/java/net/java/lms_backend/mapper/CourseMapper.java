@@ -23,6 +23,9 @@ public class CourseMapper {
 
     }
     public static Course maptoCourse(Coursedto coursedto) {
+        if(coursedto==null){
+            throw new NullPointerException("The CourseDTO Should not be null");
+        }
         Course course = new Course();
         course.setId(coursedto.getId());
         course.setTitle(coursedto.getTitle());
