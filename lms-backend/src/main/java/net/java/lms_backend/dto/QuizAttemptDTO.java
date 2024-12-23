@@ -5,6 +5,8 @@ import java.util.Map;
 public class QuizAttemptDTO {
     private Long quizId;
     private Long studentId;
+    private int score;
+    private Map<Long, String> answers;
 
     public Long getQuizId() {
         return quizId;
@@ -21,4 +23,21 @@ public class QuizAttemptDTO {
     public void setStudentId(Long studentId) {
         this.studentId = studentId;
     }
+
+    public Map<Long, String> getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(Map<Long, String> answers) {
+        this.answers = answers;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
 }

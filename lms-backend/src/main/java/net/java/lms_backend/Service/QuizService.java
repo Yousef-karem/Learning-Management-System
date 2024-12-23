@@ -10,12 +10,14 @@ import net.java.lms_backend.entity.Question;
 import net.java.lms_backend.entity.Quiz;
 import net.java.lms_backend.entity.QuizAttempt;
 import net.java.lms_backend.entity.Student;
+import net.java.lms_backend.mapper.QuizAttemptMapper;
 import net.java.lms_backend.mapper.QuizMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class QuizService {
@@ -72,5 +74,36 @@ public class QuizService {
         }
         Collections.shuffle(filteredQuestions);
         return filteredQuestions.subList(0, Math.toIntExact(count));
+    }
+
+    public int updateQuizAttempt(Long quizAttemptId, Map<Long, String> answers) {
+        QuizAttempt quizAttempt = quizAttemptRepository.findById(quizAttemptId)
+                .orElseThrow(() -> new IllegalArgumentException("Quiz attempt not found"));
+
+        quizAttempt.setAnswers(answers);
+
+        int score = 0;
+        for (var entry : answers.entrySet()) {
+            Long questionId = entry.getKey();
+            String studentAnswer = entry.getValue();
+
+            var question = quizAttempt.getQuestions().stream()
+                    .filter(q -> q.getId().equals(questionId))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid question ID: " + questionId));
+
+            if (question.getCorrectAnswer().equals(studentAnswer)) {
+                score++;
+            }
+        }
+
+        quizAttempt.setScore(score);
+        quizAttemptRepository.save(quizAttempt);
+
+        return score;
+    }
+    public QuizAttempt getQuizAttempt(Long quizAttemptId) {
+        QuizAttempt quizAttempt = quizAttemptRepository.findById(quizAttemptId).orElseThrow(() -> new RuntimeException("Quiz attempt not found"));
+        return quizAttempt;
     }
 }

@@ -32,7 +32,6 @@ public class QuizAttempt {
     )
     private List<Question> questions; // List of questions for the quiz attempt
 
-    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -73,5 +72,12 @@ public class QuizAttempt {
         this.questions = questions;
     }
 
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
 
 }

@@ -7,6 +7,8 @@ import net.java.lms_backend.entity.QuizAttempt;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/quiz")
 public class QuizController {
@@ -25,6 +27,20 @@ public class QuizController {
     @PostMapping("/attempt/{quizId}/student/{studentId}")
     public ResponseEntity<QuizAttempt> generateQuizAttempt(@PathVariable Long quizId , @PathVariable Long studentId) {
         QuizAttempt quizAttempt = quizService.generateQuizAttempt(quizId , studentId);
+        return ResponseEntity.ok(quizAttempt);
+    }
+
+    @PatchMapping("/attempt/{quizAttemptId}")
+    public ResponseEntity<Integer> updateQuizAttempt(
+            @PathVariable Long quizAttemptId,
+            @RequestBody Map<Long, String> answers) {
+        int score = quizService.updateQuizAttempt(quizAttemptId, answers);
+        return ResponseEntity.ok(score);
+    }
+
+    @GetMapping("/attempt/{quizAttemptId}")
+    public ResponseEntity<QuizAttempt> getQuizAttempt(@PathVariable Long quizAttemptId) {
+        QuizAttempt quizAttempt = quizService.getQuizAttempt(quizAttemptId);
         return ResponseEntity.ok(quizAttempt);
     }
 }
