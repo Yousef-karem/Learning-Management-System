@@ -71,9 +71,6 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Course> courses=new ArrayList<Course>();
 
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Course> courses=new ArrayList<Course>();
-
 
     public User(
                 String firstName,

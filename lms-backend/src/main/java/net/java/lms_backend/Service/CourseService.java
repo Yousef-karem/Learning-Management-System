@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import net.java.lms_backend.mapper.StudentMapper;
 
-@Getter
-@Setter
 @Service
 public class CourseService {
     private final CourseRepository courseRepo;
@@ -30,7 +28,40 @@ public class CourseService {
     private final AttendanceRepo attendanceRepo;
     private final PerformanceRepo performanceRepo;
 
-    public CourseService(CourseRepository courseRepo, UserRepository userRepo, InstructorRepository instructorRepo, LessonRepositery lessonRepo, EnrollmentRepo enrollmentRepo, StudentRepository studentRepository, AttendanceRepo attendanceRepo,PerformanceRepo performanceRepo) {
+    public UserRepository getUserRepo() {
+        return userRepo;
+    }
+
+    public CourseRepository getCourseRepo() {
+        return courseRepo;
+    }
+
+    public InstructorRepository getInstructorRepo() {
+        return instructorRepo;
+    }
+
+    public LessonRepositery getLessonRepo() {
+        return lessonRepo;
+    }
+
+    public EnrollmentRepo getEnrollmentRepo() {
+        return enrollmentRepo;
+    }
+
+    public StudentRepository getStudentRepository() {
+        return studentRepository;
+    }
+
+    public AttendanceRepo getAttendanceRepo() {
+        return attendanceRepo;
+    }
+
+    public PerformanceRepo getPerformanceRepo() {
+        return performanceRepo;
+    }
+
+
+    public CourseService(CourseRepository courseRepo, UserRepository userRepo, InstructorRepository instructorRepo, LessonRepositery lessonRepo, EnrollmentRepo enrollmentRepo, StudentRepository studentRepository, AttendanceRepo attendanceRepo, PerformanceRepo performanceRepo) {
         this.courseRepo = courseRepo;
         this.userRepo = userRepo;
         this.instructorRepo = instructorRepo;
