@@ -8,7 +8,9 @@ public class QuizAttemptMapper {
             QuizAttemptDTO quizDTO = new QuizAttemptDTO();
             quizDTO.setQuizId(quiz.getQuiz().getId());
             quizDTO.setStudentId(quiz.getStudent().getId());
+            quizDTO.setScore(quiz.getScore());
             return quizDTO;
         }
     }
+
 }

@@ -28,7 +28,7 @@ public class Submission {
 //    private Feedback feedback = null;
 
     private Double grade = null; // Grading by instructor
-
+    private String feedback = null;
     public Submission() {}
 
     public Submission(Assignment assignment, Student student, String fileUrl) {
@@ -61,6 +61,12 @@ public class Submission {
     public void setFileName(String fileUrl) {
         this.fileName = fileUrl;
     }
+
+    public void setFeedback(String feedback) {
+        this.feedback = feedback;
+    }
+
+
     public long getId() {
         return id;
     }
@@ -80,6 +86,13 @@ public class Submission {
         return fileName;
     }
 
+    public Double getGrade() {
+        return grade;
+    }
+
+    public String getFeedback() {
+        return feedback;
+    }
 
 
 }

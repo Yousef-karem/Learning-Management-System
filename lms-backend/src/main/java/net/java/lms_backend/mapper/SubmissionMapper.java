@@ -10,6 +10,8 @@ public class SubmissionMapper {
         Submission submission = new Submission();
         submission.setFileName(dto.getFileName());
         submission.setSubmittedAt(dto.getSubmittedAt());
+        submission.setGrade(dto.getGrade());
+        submission.setFeedback(dto.getFeedback());
         return submission;
     }
 
@@ -20,6 +22,8 @@ public class SubmissionMapper {
         dto.setSubmittedAt(submission.getSubmittedAt());
         dto.setAssignmentId(submission.getAssignment().getId());
         dto.setStudentId(submission.getStudent().getId());
+        dto.setGrade(submission.getGrade());
+        dto.setFeedback(submission.getFeedback());
         return dto;
     }
 }

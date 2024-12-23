@@ -7,6 +7,7 @@ import net.java.lms_backend.entity.QuizAttempt;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -43,4 +44,21 @@ public class QuizController {
         QuizAttempt quizAttempt = quizService.getQuizAttempt(quizAttemptId);
         return ResponseEntity.ok(quizAttempt);
     }
+
+    @GetMapping("/performance/{quizId}")
+    public ResponseEntity<Integer> getQuizPerformance(@PathVariable Long quizId) {
+        double performance = quizService.getAverageScoreByQuizId(quizId);
+        return ResponseEntity.ok((int) performance);
+    }
+
+    @GetMapping("/course/{courseId}/student/{studentId}")
+    public List<QuizAttempt> getQuizAttemptsByStudent( @PathVariable Long courseId, @PathVariable Long studentId) {
+        return quizService.getQuizAttemptsByStudent(studentId,courseId);
+    }
+
+    @GetMapping("/course/{courseId}/student/{studentId}/averageScore")
+    public Double getAverageScoreByStudent( @PathVariable Long courseId, @PathVariable Long studentId) {
+        return quizService.getAverageScoreOfStudent(studentId,courseId);
+    }
+
 }

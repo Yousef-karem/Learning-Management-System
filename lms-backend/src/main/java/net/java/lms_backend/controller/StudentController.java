@@ -54,6 +54,7 @@ public class StudentController {
         return ResponseEntity.noContent().build();
     }
 
+
     @GetMapping
     public ResponseEntity<List<StudentDTO>> getAllStudents() {
         List<StudentDTO> students = studentService.getAllStudents();

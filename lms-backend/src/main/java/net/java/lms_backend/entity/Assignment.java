@@ -12,7 +12,6 @@ import java.util.List;
 @Setter
 @Entity
 public class Assignment extends Assessment {
-
     @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Submission> submissions = new ArrayList<>();
 
@@ -21,6 +20,8 @@ public class Assignment extends Assessment {
     public String getTitle() {
         return super.getTitle();
     }
+
+
 
     public void setTitle(String title) {
         super.setTitle(title);

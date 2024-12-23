@@ -14,10 +14,7 @@ import net.java.lms_backend.mapper.QuizAttemptMapper;
 import net.java.lms_backend.mapper.QuizMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class QuizService {
@@ -105,5 +102,31 @@ public class QuizService {
     public QuizAttempt getQuizAttempt(Long quizAttemptId) {
         QuizAttempt quizAttempt = quizAttemptRepository.findById(quizAttemptId).orElseThrow(() -> new RuntimeException("Quiz attempt not found"));
         return quizAttempt;
+    }
+
+    public double getAverageScoreByQuizId(Long quizId) {
+        List<QuizAttempt> quizAttempts = quizAttemptRepository.findByQuizId(quizId);
+        if (quizAttempts.isEmpty()) {
+            return 0.0;
+        }
+        int totalScore = 0;
+        for (QuizAttempt quizAttempt : quizAttempts) {
+            totalScore += quizAttempt.getScore();
+        }
+        return (double) totalScore / quizAttempts.size();
+    }
+
+    public List<QuizAttempt> getQuizAttemptsByStudent(Long studentId, long courseId) {
+        List<QuizAttempt> quizAttempts = quizAttemptRepository.findByStudentIdAndQuiz_Course_Id(studentId, courseId); // or adjust based on your logic
+        return quizAttempts;
+    }
+
+    public Double getAverageScoreOfStudent(Long studentId, long courseId) {
+        List<QuizAttempt> quizAttempts = quizAttemptRepository.findByStudentIdAndQuiz_Course_Id(studentId, courseId); // or adjust based on your logic
+        OptionalDouble average = quizAttempts.stream()
+                .mapToDouble(QuizAttempt::getScore)  // Assuming getScore() is a method in QuizAttempt entity
+                .average();
+
+        return average.isPresent() ? average.getAsDouble() : 0.0;
     }
 }

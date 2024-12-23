@@ -8,6 +8,18 @@ public class SubmissionDTO {
     private Long studentId;
     private Long assignmentId;
     private String fileName;
+    private Double grade = null;
+    private String feedback = null;
+    public SubmissionDTO(Long id, LocalDateTime submittedAt, Long studentId, Long assignmentId, String fileUrl, Double grade, String feedback) {
+        this.id = id;
+        this.submittedAt = submittedAt;
+        this.studentId = studentId;
+        this.assignmentId = assignmentId;
+        this.fileName = fileUrl;
+        this.grade = grade;
+        this.feedback = feedback;
+
+    }
     public SubmissionDTO(Long id, LocalDateTime submittedAt, Long studentId, Long assignmentId, String fileUrl) {
         this.id = id;
         this.submittedAt = submittedAt;
@@ -47,4 +59,39 @@ public class SubmissionDTO {
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
+    public Double getGrade() {
+        return grade;
+    }
+    public void setGrade(Double grade) {
+        this.grade = grade;
+    }
+    public String getFeedback() {
+        return feedback;
+    }
+    public void setFeedback(String feedback) {
+        this.feedback = feedback;
+    }
+
+    public static class SubmissionGradeAndFeedbackDTO {
+        private double grade;
+        private String feedback;
+
+        // Getters and Setters
+        public double getGrade() {
+            return grade;
+        }
+
+        public void setGrade(double grade) {
+            this.grade = grade;
+        }
+
+        public String getFeedback() {
+            return feedback;
+        }
+
+        public void setFeedback(String feedback) {
+            this.feedback = feedback;
+        }
+    }
+
 }

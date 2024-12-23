@@ -107,4 +107,66 @@ public class SubmissionService {
         submissionRepository.deleteById(id);
     }
 
+    public SubmissionDTO patchSubmissionGradeAndFeedback(Long submissionId, Double grade, String feedback) {
+        if (grade == null || grade < 0) {
+            throw new IllegalArgumentException("Grade must be greater than or equal to 0.");
+        }
+
+        Submission submission = submissionRepository.findById(submissionId)
+                .orElseThrow(() -> new IllegalArgumentException("Submission not found"));
+
+        submission.setGrade(grade);
+        submission.setFeedback(feedback);
+        Submission updatedSubmission = submissionRepository.save(submission);
+
+        return submissionMapper.toDTO(updatedSubmission);
+    }
+    public List<SubmissionDTO> getSubmissionsByAssignmentId(Long assignmentId) {
+        List<Submission> submissions = submissionRepository.findByAssignmentId(assignmentId);
+        return submissions.stream()
+                .map(submissionMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public double getAverageGradeByAssignmentId(Long assignmentId) {
+        List<Submission> submissions = submissionRepository.findByAssignmentId(assignmentId);
+
+        // Filter out submissions with null grades
+        List<Submission> submissionsWithGrades = submissions.stream()
+                .filter(submission -> submission.getGrade() != null)
+                .collect(Collectors.toList());
+
+        if (submissionsWithGrades.isEmpty()) {
+            throw new IllegalArgumentException("No grades available for this assignment.");
+        }
+
+        double totalGrade = submissionsWithGrades.stream()
+                .mapToDouble(Submission::getGrade)
+                .sum();
+
+        return totalGrade / submissionsWithGrades.size();
+    }
+
+    public int getTotalSubmissionsByAssignmentId(Long assignmentId) {
+        return submissionRepository.findByAssignmentId(assignmentId).size();
+    }
+
+    public double getNonGradedSubmissionsByAssignmentId(Long assignmentId) {
+        List<Submission> submissions = submissionRepository.findByAssignmentId(assignmentId);
+
+        // Filter out submissions with null grades
+        List<Submission> NonGradedSubmissions = submissions.stream()
+                .filter(submission -> submission.getGrade() == null)
+                .collect(Collectors.toList());
+
+        return NonGradedSubmissions.size();
+    }
+
+    public List <SubmissionDTO> getSubmissionsByStudentIdAndCourseId(Long studentId, Long assignmentId) {
+        List<Submission> submissions = submissionRepository.findByStudentIdAndAssignment_Course_Id(assignmentId, studentId);
+        return submissions.stream()
+                .map(submissionMapper::toDTO)
+                .collect(Collectors.toList());
+
+    }
 }
