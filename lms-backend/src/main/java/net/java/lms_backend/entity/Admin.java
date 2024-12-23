@@ -4,15 +4,13 @@ import jakarta.persistence.Entity;
 
 @Entity
 public class Admin extends User{
-    public Admin(String username, String password, String email)
+    public Admin(User user)
     {
-        this.role=0;
-        this.username=username;
-        this.password=password;
-        this.email=email;
+
+        super(Role.ADMIN,new User());
     }
     public Admin()
     {
-        this.role=0;
+        super(Role.ADMIN,new User());
     }
 }

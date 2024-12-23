@@ -15,33 +15,15 @@ public class Student extends User{
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<Submission> submissions;
 
-    public Student(String username, String password, String email)
-    {
-        this.role=2;
-        this.username=username;
-        this.password=password;
-        this.email=email;
+    public Student(User user) {
+        super(Role.STUDENT,user);
     }
+
     public Student()
     {
-        this.role=2;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getEmail() {
-        return email;
+        super(Role.STUDENT,new User());
     }
 
 
-    public void setUsername(String username) {
-        this.username=username;
-    }
-
-    public void setEmail(String email) {
-        this.email=email;
-    }
 
 }
