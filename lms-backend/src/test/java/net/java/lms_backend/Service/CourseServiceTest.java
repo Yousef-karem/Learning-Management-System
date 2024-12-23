@@ -37,6 +37,8 @@ class CourseServiceTest {
     private EnrollmentRepo enrollmentRepo;
     @Mock
     private AttendanceRepo attendanceRepo;
+    @Mock
+    private PerformanceRepo performanceRepo;
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -225,6 +227,7 @@ class CourseServiceTest {
         Long courseId = 1L;
         Long studentId = 2L;
 
+
         Course course = new Course();
         course.setId(courseId);
         when(courseRepo.findById(courseId)).thenReturn(Optional.of(course));
@@ -237,7 +240,9 @@ class CourseServiceTest {
 
         verify(enrollmentRepo, times(1)).save(any(Enrollment.class));
 
+        verify(performanceRepo, times(1)).save(any(Performance.class));
     }
+
 
     @Test
     void getEnrolledStudents() {
@@ -288,17 +293,39 @@ class CourseServiceTest {
     void validateOtp() {
         Long lessonId = 1L;
         String otp = "10098";
+        Long studentId = 1L;
+        Course course = new Course();
+        course.setId(1L);
+        Lesson lesson = new Lesson();
+        lesson.setCourse(course);
+
         Attendance attendance = new Attendance();
         attendance.setOtp(otp);
         attendance.setActive(true);
+        attendance.setLesson(lesson);
+
         when(attendanceRepo.findByLessonIdAndOtp(lessonId, otp)).thenReturn(attendance);
 
-        boolean result = courseService.validateOtp(lessonId, otp);
+        Student student = new Student();
+        student.setId(studentId);
+        when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
+
+        Performance performance = new Performance();
+        performance.setTotalLessonsAttended(0);
+        when(performanceRepo.findByStudentIdAndCourseId(studentId, course.getId())).thenReturn(performance);
+
+        boolean result = courseService.validateOtp(lessonId, otp, studentId);
+
 
         assertTrue(result);
         assertFalse(attendance.isActive());
-        verify(attendanceRepo, times(1)).save(attendance);
+        assertEquals(student, attendance.getStudent());
+        assertEquals(1, performance.getTotalLessonsAttended());
 
+
+        verify(attendanceRepo, times(1)).save(attendance);
+        verify(studentRepository, times(1)).findById(studentId);
+        verify(performanceRepo, times(1)).save(performance);
     }
 
 

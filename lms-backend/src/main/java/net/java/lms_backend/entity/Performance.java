@@ -16,4 +16,46 @@ public class Performance {
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
+    private int totalLessonsAttended;
+    private int totalLessons;
+
+    public int getTotalLessonsAttended() {
+        return totalLessonsAttended;
+    }
+
+    public void setTotalLessonsAttended(int totalClassesAttended) {
+        this.totalLessonsAttended = totalClassesAttended;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setStudent(Student student) {
+        this.student=student;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
+    }
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public Student getStudent() {
+        return student;
+    }
+
+    public void setPerformanceId(long performanceId) {
+        PerformanceId = performanceId;
+    }
+
+    public int getTotalLessons() {
+        return totalLessons;
+    }
 }
