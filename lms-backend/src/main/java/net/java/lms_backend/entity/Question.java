@@ -1,11 +1,9 @@
 package net.java.lms_backend.entity;
-import jakarta.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-
-
-
 
 @Entity
 public class Question {
@@ -18,18 +16,19 @@ public class Question {
     @Enumerated(EnumType.STRING)
     private QuestionType type; // MCQ, TRUE_FALSE, SHORT_ANSWER
 
-    @ElementCollection
-    private List<String> options = new ArrayList<>(); // For MCQ
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QuestionOption> options = new ArrayList<>();
 
     private String correctAnswer;
 
     @ManyToOne
     @JoinColumn(name = "course_id")
+    @JsonIgnore
     private Course course;
 
     public Question() {}
 
-    public Question(String content, QuestionType type, List<String> options, String correctAnswer, Course course) {
+    public Question(String content, QuestionType type, List<QuestionOption> options, String correctAnswer, Course course) {
         this.content = content;
         this.type = type;
         this.options = options;
@@ -62,11 +61,11 @@ public class Question {
         this.type = type;
     }
 
-    public List<String> getOptions() {
+    public List<QuestionOption> getOptions() {
         return options;
     }
 
-    public void setOptions(List<String> options) {
+    public void setOptions(List<QuestionOption> options) {
         this.options = options;
     }
 
@@ -86,4 +85,3 @@ public class Question {
         this.course = course;
     }
 }
-

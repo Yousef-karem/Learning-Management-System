@@ -154,10 +154,15 @@ public class CourseService {
         Course course = courseRepo.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
 
-        for (QuestionDTO questionDTO : questionDTOs) {
-            Question question = QuestionMapper.mapToQuestion(questionDTO, course);
-            course.addQuestion(question);
-        }
+        List<Question> questions = questionDTOs.stream()
+                .map(questionDTO -> {
+                    Question question = QuestionMapper.mapToQuestion(questionDTO, course);
+                    course.addQuestion(question); // Ensure bidirectional relationship is maintained
+                    return question;
+                })
+                .collect(Collectors.toList());
+
+        course.getQuestionsBank().addAll(questions); // Add all questions to the course's question bank
         courseRepo.save(course);
     }
 
@@ -171,4 +176,5 @@ public class CourseService {
                 .map(QuestionMapper::mapToQuestionDTO)
                 .collect(Collectors.toList());
     }
+
 }

@@ -26,21 +26,20 @@ public class QuestionMapper {
     }
 
     public static Question mapToQuestion(QuestionDTO questionDTO, Course course) {
-        Question question = new Question();
-        question.setContent(questionDTO.getContent());
-        question.setCorrectAnswer(questionDTO.getCorrectAnswer());
-        question.setType(questionDTO.getType());
-        question.setCourse(course);
-
         List<QuestionOption> options = questionDTO.getOptions().stream()
                 .map(dto -> {
                     QuestionOption option = new QuestionOption();
                     option.setOptionContent(dto.getOptionContent());
-                    option.setQuestion(question); // Set the question in the option
                     return option;
                 }).collect(Collectors.toList());
 
+        Question question = new Question();
+        question.setContent(questionDTO.getContent());
+        question.setCorrectAnswer(questionDTO.getCorrectAnswer());
         question.setOptions(options);
+        question.setCourse(course);
+        question.setType(questionDTO.getType());
+
         return question;
     }
 }
