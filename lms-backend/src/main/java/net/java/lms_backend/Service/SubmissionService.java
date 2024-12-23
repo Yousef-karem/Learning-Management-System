@@ -54,7 +54,6 @@ public class SubmissionService {
         // Save the file locally
         String fileName = saveFile(file);
 
-        // Create a new Submission entity
         Submission submission = new Submission();
         submission.setFileName(fileName);
         submission.setSubmittedAt(LocalDateTime.now());
