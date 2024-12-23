@@ -3,11 +3,10 @@ package net.java.lms_backend.Service;
 import lombok.Getter;
 import lombok.Setter;
 import net.java.lms_backend.Repositrory.*;
-import net.java.lms_backend.dto.Coursedto;
-import net.java.lms_backend.dto.QuestionDTO;
-import net.java.lms_backend.dto.StudentDTO;
+import net.java.lms_backend.dto.*;
 import net.java.lms_backend.entity.*;
 import net.java.lms_backend.mapper.CourseMapper;
+import net.java.lms_backend.mapper.PerformanceMapper;
 import net.java.lms_backend.mapper.QuestionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,8 +28,9 @@ public class CourseService {
     private final StudentRepository studentRepository;
     private final EnrollmentRepo enrollmentRepo;
     private final AttendanceRepo attendanceRepo;
+    private final PerformanceRepo performanceRepo;
 
-    public CourseService(CourseRepository courseRepo, UserRepository userRepo, InstructorRepository instructorRepo, LessonRepositery lessonRepo, EnrollmentRepo enrollmentRepo, StudentRepository studentRepository, AttendanceRepo attendanceRepo) {
+    public CourseService(CourseRepository courseRepo, UserRepository userRepo, InstructorRepository instructorRepo, LessonRepositery lessonRepo, EnrollmentRepo enrollmentRepo, StudentRepository studentRepository, AttendanceRepo attendanceRepo,PerformanceRepo performanceRepo) {
         this.courseRepo = courseRepo;
         this.userRepo = userRepo;
         this.instructorRepo = instructorRepo;
@@ -38,6 +38,7 @@ public class CourseService {
         this.enrollmentRepo=enrollmentRepo;
         this.studentRepository = studentRepository;
         this.attendanceRepo=attendanceRepo;
+        this.performanceRepo=performanceRepo;
     }
 
     public Coursedto CreateCourse(Coursedto coursedto) {
@@ -127,8 +128,13 @@ public class CourseService {
         Enrollment enrollment = new Enrollment();
         enrollment.setCourse(course);
         enrollment.setStudent(student);
-
         enrollmentRepo.save(enrollment);
+
+        Performance performance = new Performance();
+        performance.setStudent(student);
+        performance.setCourse(course);
+        performance.setTotalLessonsAttended(0);
+        performanceRepo.save(performance);
     }
 
     public List<StudentDTO> getEnrolledStudents(Long courseId) {
@@ -148,18 +154,45 @@ public class CourseService {
         return otp;
 
     }
-    public boolean validateOtp(Long lessonId, String otp) {
+    public boolean validateOtp(Long lessonId, String otp, Long studentId) {
         Attendance attendance = attendanceRepo.findByLessonIdAndOtp(lessonId, otp);
         if (attendance != null && attendance.isActive()) {
             attendance.setActive(false);
+            attendance.setStudent(studentRepository.findById(studentId).orElseThrow(() -> new RuntimeException("Student not found")));
             attendanceRepo.save(attendance);
+            Performance performance = performanceRepo.findByStudentIdAndCourseId(studentId, attendance.getLesson().getCourse().getId());
+            if (performance != null) {
+                performance.setTotalLessonsAttended(performance.getTotalLessonsAttended() + 1);
+                performanceRepo.save(performance);
+            }
+
             return true;
         }
 
         return false;
     }
+    public int getPerformanceForStudent(Long studentId, Long courseId) {
+        Performance performance = performanceRepo.findByStudentIdAndCourseId(studentId, courseId);
 
+        if (performance == null) {
+            throw new RuntimeException("Performance record not found for studentId: " + studentId + " and courseId: " + courseId);
+        }
 
+        return performance.getTotalLessonsAttended(); }
+    public List<Attendancedto> getAttendanceForLesson(Long lessonId) {
+        List<Attendance> attendanceList = attendanceRepo.findByLessonId(lessonId);
+
+        return attendanceList.stream()
+                .map(attendance -> {
+                    Attendancedto dto = new Attendancedto();
+                    dto.setStudentId(attendance.getStudent().getId());
+                    dto.setLessonId(lessonId);
+                    dto.setOtp(attendance.getOtp());
+                    dto.setActive(attendance.isActive());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
     public void addQuestionsToCourse(Long courseId, List<QuestionDTO> questionDTOs) {
         Course course = courseRepo.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
