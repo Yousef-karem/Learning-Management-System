@@ -41,19 +41,26 @@ public class CourseService {
     }
 
     public Coursedto CreateCourse(Coursedto coursedto) {
-        User user = userRepo.findById(coursedto.getUser().getId())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + coursedto.getUser().getId()));
+//        User user = userRepo.findById(coursedto.getUser ().getId())
+//                .orElseThrow(() -> new RuntimeException("User  not found with id: " + coursedto.getUser ().getId()));
 
-        Instructor instructor = instructorRepo.findById(coursedto.getInstructor().getId())
-                .orElseThrow(() -> new RuntimeException("Instructor not found with id: " + coursedto.getInstructor().getId()));
+        Instructor instructor = instructorRepo.findById(coursedto.getInstructorId())
+                .orElseThrow(() -> new RuntimeException("Instructor not found with id: " + coursedto.getInstructorId()));
 
-        Course course = CourseMapper.maptoCourse(coursedto);
-
-        course.setUser(user);
+        Course course = new Course();
+        course.setTitle(coursedto.getTitle());
+        course.setDescription(coursedto.getDescription());
+        course.setDuration(coursedto.getDuration());
+//        course.setUser (user);
         course.setInstructor(instructor);
 
-        Course savedCourse = courseRepo.save(course);
+        if (coursedto.getMediaFiles() != null) {
+            for (MediaFiles mediaFile : coursedto.getMediaFiles()) {
+                course.addMediaFile(mediaFile);
+            }
+        }
 
+        Course savedCourse = courseRepo.save(course);
         return CourseMapper.mapToCoursedto(savedCourse);
     }
 
@@ -63,8 +70,11 @@ public class CourseService {
 
     }
 
-    public List<Coursedto> getCoursesByInstructor(Long instructorId){
-        return courseRepo.findByInstructorId(instructorId);
+    public List<Coursedto> getCoursesByInstructor(Long instructorId) {
+        List<Course> courses = courseRepo.findByInstructorId(instructorId);
+        return courses.stream()
+                .map(CourseMapper::mapToCoursedto)
+                .collect(Collectors.toList());
     }
     public void deleteCourse(Long CourseId){
 

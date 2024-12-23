@@ -25,9 +25,9 @@ public class Course {
 
 
     // Many-to-One relationship with User
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+//    @ManyToOne
+//    @JoinColumn(name = "user_id", nullable = false)
+//    private User user;
 
     @ManyToOne
     @JoinColumn(name = "instructor_id", nullable = false) // Foreign key in the course table
@@ -42,7 +42,7 @@ public class Course {
         this.description = description;
         this.duration = duration;
         this.mediaFiles = mediaFiles;
-        this.user = user;
+      //  this.user = user;
         this.instructor = instructor;
     }
     public void addLesson(Lesson lesson) {
@@ -79,9 +79,9 @@ public class Course {
         return title;
     }
 
-    public User getUser() {
-        return user;
-    }
+//    public User getUser() {
+//        return user;
+//    }
 
     public List<MediaFiles> getMediaFiles() {
 
@@ -113,9 +113,9 @@ public class Course {
         this.instructor = instructor;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+//    public void setUser(User user) {
+//        this.user = user;
+//    }
 
     public void setDuration(String duration) {
         this.duration = duration;
