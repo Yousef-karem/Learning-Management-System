@@ -5,18 +5,29 @@ import java.util.List;
 
 @Entity
 public class Quiz extends Assessment {
-    private boolean randomized;
 
-    @ManyToMany
-    @JoinTable(
-            name = "quiz_question",
-            joinColumns = @JoinColumn(name = "quiz_id"),
-            inverseJoinColumns = @JoinColumn(name = "question_id")
-    )
-    private List<Question> questions;
+    Long numOfMCQ = 0L;
+    Long numOfTrueFalse = 0L;
+    Long numOfShortAnswer = 0L;
 
-    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL)
-    private List<QuizAttempt> quizAttempts;
+    public Long getNumOfMCQ() {
+        return numOfMCQ;
+    }
+    public void setNumOfMCQ(Long numOfMCQ) {
+        this.numOfMCQ = numOfMCQ;
+    }
+    public Long getNumOfTrueFalse() {
+        return numOfTrueFalse;
+    }
+    public void setNumOfTrueFalse(Long numOfTrueFalse) {
+        this.numOfTrueFalse = numOfTrueFalse;
+    }
+    public Long getNumOfShortAnswer() {
+        return numOfShortAnswer;
+    }
+    public void setNumOfShortAnswer(Long numOfShortAnswer) {
+        this.numOfShortAnswer = numOfShortAnswer;
+    }
 }
 
 

@@ -1,4 +1,5 @@
 package net.java.lms_backend.entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -16,6 +17,7 @@ public abstract class Assessment {
     private LocalDate dueDate;
 
     @ManyToOne
+    @JsonIgnore
     private Course course;
 
     public Long getId() {

@@ -26,6 +26,7 @@ public class User implements UserDetails {
     @Column(nullable=false)
     private String password; // This will store the hashed password
     @Column(unique=true)
+
     private String email;
 
     private boolean initialAdmin;
@@ -69,6 +70,10 @@ public class User implements UserDetails {
     private Role role= Role.USER;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Course> courses=new ArrayList<Course>();
+
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Course> courses=new ArrayList<Course>();
+
 
     public User(
                 String firstName,

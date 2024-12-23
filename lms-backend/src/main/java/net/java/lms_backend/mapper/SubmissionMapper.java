@@ -8,18 +8,22 @@ import org.springframework.stereotype.Component;
 public class SubmissionMapper {
     public Submission toEntity(SubmissionDTO dto) {
         Submission submission = new Submission();
-        submission.setFileUrl(dto.getFileUrl());
+        submission.setFileName(dto.getFileName());
         submission.setSubmittedAt(dto.getSubmittedAt());
+        submission.setGrade(dto.getGrade());
+        submission.setFeedback(dto.getFeedback());
         return submission;
     }
 
     public SubmissionDTO toDTO(Submission submission) {
         SubmissionDTO dto = new SubmissionDTO();
         dto.setId(submission.getId());
-        dto.setFileUrl(submission.getFileUrl());
+        dto.setFileName(submission.getFileName());
         dto.setSubmittedAt(submission.getSubmittedAt());
         dto.setAssignmentId(submission.getAssignment().getId());
         dto.setStudentId(submission.getStudent().getId());
+        dto.setGrade(submission.getGrade());
+        dto.setFeedback(submission.getFeedback());
         return dto;
     }
 }

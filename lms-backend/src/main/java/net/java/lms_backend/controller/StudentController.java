@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -26,15 +27,33 @@ public class StudentController {
     @Autowired
     private SubmissionMapper submissionMapper;
 
-    @PostMapping("/submission/{assignmentId}")
+    @PostMapping("/{assignmentId}/submit")
     public ResponseEntity<SubmissionDTO> createSubmission(
             @PathVariable Long assignmentId,
-            @RequestBody SubmissionDTO submissionDTO
-    ) {
-        Submission submission = submissionMapper.toEntity(submissionDTO);
-        Submission createdSubmission = submissionService.createSubmission(assignmentId, submission);
-        return ResponseEntity.status(HttpStatus.CREATED).body(submissionMapper.toDTO(createdSubmission));
+            @RequestParam Long studentId,
+            @RequestParam("file") MultipartFile file) {
+
+        SubmissionDTO createdSubmission = submissionService.createSubmission(assignmentId, studentId, file);
+        return new ResponseEntity<>(createdSubmission, HttpStatus.CREATED);
     }
+    @GetMapping("/submissions")
+    public ResponseEntity<List<SubmissionDTO>> getAllSubmissions() {
+        List<SubmissionDTO> submissions = submissionService.getAllSubmissions();
+        return ResponseEntity.ok(submissions);
+    }
+
+    @GetMapping("/submissions/{id}")
+    public ResponseEntity<SubmissionDTO> getSubmissionById(@PathVariable Long id) {
+        SubmissionDTO submission = submissionService.getSubmissionById(id);
+        return ResponseEntity.ok(submission);
+    }
+
+    @DeleteMapping("/submissions/{id}")
+    public ResponseEntity<Void> deleteSubmission(@PathVariable Long id) {
+        submissionService.deleteSubmission(id);
+        return ResponseEntity.noContent().build();
+    }
+
 
     @GetMapping
     public ResponseEntity<List<StudentDTO>> getAllStudents() {

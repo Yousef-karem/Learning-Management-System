@@ -5,20 +5,23 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 @Entity
 public class Assignment extends Assessment {
+    @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Submission> submissions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL)
-    private List<Submission> submissions;
 
 
     public String getTitle() {
         return super.getTitle();
     }
+
+
 
     public void setTitle(String title) {
         super.setTitle(title);

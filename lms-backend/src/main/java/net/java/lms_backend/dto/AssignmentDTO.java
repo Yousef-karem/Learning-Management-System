@@ -11,7 +11,7 @@ public class AssignmentDTO {
     private Long id;
     private String title;
     private String dueDate;
-    private Long courseId; // Store courseId directly
+    private Long courseId;
     private List<SubmissionDTO> submissions;
 
     public AssignmentDTO(String title, String dueDate, long courseId) {
@@ -31,6 +31,10 @@ public class AssignmentDTO {
 
     public Long getCourseId() {
         return courseId;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public void setId(Long id) {
