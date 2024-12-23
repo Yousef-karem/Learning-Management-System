@@ -25,7 +25,7 @@ public class Coursedto {
     private List<Lesson> lessons;
     private List<Long> lessonIds;
     private List<MediaFiles> mediaFiles;
-
+    private List<QuestionDTO> questionsBank;
 
 
     public Coursedto(Long id, String title, String description, String duration, List<MediaFiles> mediaFiles,Long instructorId) {
@@ -75,7 +75,19 @@ public class Coursedto {
         return instructorId;
     }
 
+
 //    public Long getUserId() {
 //        return userId;
 //    }
+
+
+    public List<QuestionDTO> getQuestionsBank() {
+        return questionsBank;
+    }
+
+    public void setQuestionsBank(List<QuestionDTO> questionsBank) {
+        this.questionsBank = questionsBank;
+    }
+
+
 }

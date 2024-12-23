@@ -4,11 +4,11 @@ import lombok.Getter;
 import lombok.Setter;
 import net.java.lms_backend.Repositrory.*;
 import net.java.lms_backend.dto.Coursedto;
-import net.java.lms_backend.dto.Enrollmentdto;
+import net.java.lms_backend.dto.QuestionDTO;
 import net.java.lms_backend.dto.StudentDTO;
 import net.java.lms_backend.entity.*;
 import net.java.lms_backend.mapper.CourseMapper;
-import org.antlr.v4.runtime.misc.LogManager;
+import net.java.lms_backend.mapper.QuestionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,17 +26,17 @@ public class CourseService {
     private final UserRepository userRepo;
     private final InstructorRepository instructorRepo;
     private final LessonRepositery lessonRepo;
-    private final StudentRepo studentRepo;
+    private final StudentRepository studentRepository;
     private final EnrollmentRepo enrollmentRepo;
     private final AttendanceRepo attendanceRepo;
 
-    public CourseService(CourseRepository courseRepo, UserRepository userRepo, InstructorRepository instructorRepo,LessonRepositery lessonRepo,EnrollmentRepo enrollmentRepo,StudentRepo studentRepo,AttendanceRepo attendanceRepo) {
+    public CourseService(CourseRepository courseRepo, UserRepository userRepo, InstructorRepository instructorRepo, LessonRepositery lessonRepo, EnrollmentRepo enrollmentRepo, StudentRepository studentRepository, AttendanceRepo attendanceRepo) {
         this.courseRepo = courseRepo;
         this.userRepo = userRepo;
         this.instructorRepo = instructorRepo;
         this.lessonRepo=lessonRepo;
         this.enrollmentRepo=enrollmentRepo;
-        this.studentRepo=studentRepo;
+        this.studentRepository = studentRepository;
         this.attendanceRepo=attendanceRepo;
     }
 
@@ -121,7 +121,7 @@ public class CourseService {
         Course course = courseRepo.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
 
-        Student student = studentRepo.findById(studentId)
+        Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found with id: " + studentId));
 
         Enrollment enrollment = new Enrollment();
@@ -159,5 +159,32 @@ public class CourseService {
         return false;
     }
 
+
+    public void addQuestionsToCourse(Long courseId, List<QuestionDTO> questionDTOs) {
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+
+        List<Question> questions = questionDTOs.stream()
+                .map(questionDTO -> {
+                    Question question = QuestionMapper.mapToQuestion(questionDTO, course);
+                    course.addQuestion(question); // Ensure bidirectional relationship is maintained
+                    return question;
+                })
+                .collect(Collectors.toList());
+
+        course.getQuestionsBank().addAll(questions); // Add all questions to the course's question bank
+        courseRepo.save(course);
+    }
+
+    public List<QuestionDTO> getQuestionsByCourseId(Long courseId) {
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+
+        List<Question> questions = course.getQuestionsBank();
+
+        return questions.stream()
+                .map(QuestionMapper::mapToQuestionDTO)
+                .collect(Collectors.toList());
+    }
 
 }

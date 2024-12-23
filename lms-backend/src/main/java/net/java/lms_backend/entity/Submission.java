@@ -1,8 +1,13 @@
 package net.java.lms_backend.entity;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
 @Entity
 public class Submission {
     @Id
@@ -15,13 +20,67 @@ public class Submission {
     @ManyToOne
     private Student student;
 
-    private LocalDateTime submittedAt;
+    private LocalDateTime submittedAt = LocalDateTime.now();
 
-    private String fileUrl; // File location
+    private String fileName;
 
-    @OneToOne(mappedBy = "submission", cascade = CascadeType.ALL)
-    private Feedback feedback;
+//    @OneToOne(mappedBy = "submission", cascade = CascadeType.ALL)
+//    private Feedback feedback = null;
 
-    private Double grade; // Grading by instructor
+    private Double grade = null; // Grading by instructor
+
+    public Submission() {}
+
+    public Submission(Assignment assignment, Student student, String fileUrl) {
+        this.assignment = assignment;
+        this.student = student;
+        this.submittedAt = LocalDateTime.now();
+        this.fileName = fileUrl;
+    }
+
+//    public void setFeedback(Feedback feedback) {
+//        this.feedback = feedback;
+//    }
+
+    public void setGrade(Double grade) {
+        this.grade = grade;
+    }
+
+    public void setAssignment(Assignment assignment) {
+        this.assignment = assignment;
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
+    }
+
+    public void setSubmittedAt(LocalDateTime submittedAt) {
+        this.submittedAt = submittedAt;
+    }
+
+    public void setFileName(String fileUrl) {
+        this.fileName = fileUrl;
+    }
+    public long getId() {
+        return id;
+    }
+    public Assignment getAssignment() {
+        return assignment;
+    }
+
+    public Student getStudent() {
+        return student;
+    }
+
+    public LocalDateTime getSubmittedAt() {
+        return submittedAt;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+
+
 }
 

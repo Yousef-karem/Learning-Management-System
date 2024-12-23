@@ -23,6 +23,8 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MediaFiles> mediaFiles = new ArrayList<>();
 
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Question> questionsBank = new ArrayList<>();
 
     // Many-to-One relationship with User
 //    @ManyToOne
@@ -97,6 +99,10 @@ public class Course {
         mediaFile.setCourse(null);
     }
 
+    public List<Question> getQuestionsBank() {
+        return questionsBank;
+    }
+
     public void setId(long id) {
         this.id = id;
     }
@@ -126,9 +132,17 @@ public class Course {
     }
 
 
+    public void setQuestionsBank(List<Question> questionsBank) {
+        this.questionsBank = questionsBank;
+    }
+
     public Course(){
 
     }
 
 
+    public void addQuestion(Question question) {
+        questionsBank.add(question);
+        question.setCourse(this);
+    }
 }
