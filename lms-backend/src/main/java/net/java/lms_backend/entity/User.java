@@ -19,8 +19,8 @@ public class User {
     String password;
     @Column(unique=true)
     String email;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Course> courses=new ArrayList<Course>();
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Course> courses=new ArrayList<Course>();
 
 
     public Long getId() {

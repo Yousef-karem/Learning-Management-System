@@ -27,9 +27,9 @@ public class Course {
     private List<Question> questionsBank = new ArrayList<>();
 
     // Many-to-One relationship with User
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+//    @ManyToOne
+//    @JoinColumn(name = "user_id", nullable = false)
+//    private User user;
 
     @ManyToOne
     @JoinColumn(name = "instructor_id", nullable = false) // Foreign key in the course table
@@ -38,13 +38,13 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Lesson> lessons = new ArrayList<>();
 
-    public Course(long id, String title, String description, String duration, List<MediaFiles> mediaFiles, User user, Instructor instructor) {
+    public Course(long id, String title, String description, String duration, List<MediaFiles> mediaFiles, Instructor instructor) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.duration = duration;
         this.mediaFiles = mediaFiles;
-        this.user = user;
+      //  this.user = user;
         this.instructor = instructor;
     }
     public void addLesson(Lesson lesson) {
@@ -81,9 +81,9 @@ public class Course {
         return title;
     }
 
-    public User getUser() {
-        return user;
-    }
+//    public User getUser() {
+//        return user;
+//    }
 
     public List<MediaFiles> getMediaFiles() {
 
@@ -119,9 +119,9 @@ public class Course {
         this.instructor = instructor;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+//    public void setUser(User user) {
+//        this.user = user;
+//    }
 
     public void setDuration(String duration) {
         this.duration = duration;
