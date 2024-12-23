@@ -24,8 +24,7 @@ public class Submission {
 
     private String fileName;
 
-//    @OneToOne(mappedBy = "submission", cascade = CascadeType.ALL)
-//    private Feedback feedback = null;
+
 
     private Double grade = null; // Grading by instructor
     private String feedback = null;
@@ -38,9 +37,10 @@ public class Submission {
         this.fileName = fileUrl;
     }
 
-//    public void setFeedback(Feedback feedback) {
-//        this.feedback = feedback;
-//    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+
 
     public void setGrade(Double grade) {
         this.grade = grade;
