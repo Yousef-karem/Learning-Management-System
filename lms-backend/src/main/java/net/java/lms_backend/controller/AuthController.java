@@ -1,15 +1,9 @@
 package net.java.lms_backend.controller;
 
-import net.java.lms_backend.Security.Jwt.JwtUtil;
 import net.java.lms_backend.Service.AuthService;
 import net.java.lms_backend.dto.LoginRequestDTO;
 import net.java.lms_backend.dto.RegisterDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import static net.java.lms_backend.mapper.UserMapper.ToUserLogin;
@@ -30,13 +24,6 @@ public class AuthController {
 
     @PostMapping("login")
     public ResponseEntity<String> Login(@RequestBody LoginRequestDTO loginRequest) {
-
-       /* Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = jwtUtil.generateToken(loginRequest.getUsername());
-        return ResponseEntity.ok(token);*/
         return authService.Login( ToUserLogin(loginRequest));
     }
 

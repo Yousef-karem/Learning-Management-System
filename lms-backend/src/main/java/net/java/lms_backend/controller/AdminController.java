@@ -25,15 +25,6 @@ public class AdminController {
         return ResponseEntity.ok(users);
     }
 
-    // Promote a user to admin
-    @PostMapping("/promote/{userId}")
-    public ResponseEntity<User> promoteToAdmin(@PathVariable Long userId) {
-        User promotedUser = adminService.promoteToAdmin(userId);
-        if (promotedUser != null) {
-            return ResponseEntity.ok(promotedUser);
-        }
-        return ResponseEntity.badRequest().build();
-    }
 
     // Assign a specific role to a user
     @PostMapping("/assign-role/{userId}")
@@ -43,16 +34,6 @@ public class AdminController {
             return ResponseEntity.ok("Role assigned successfully");
         }
         return ResponseEntity.badRequest().body("Failed to assign role. Invalid role or user.");
-    }
-
-    // Revoke a role from a user
-    @PostMapping("/revoke-role/{userId}")
-    public ResponseEntity<String> revokeRole(@PathVariable Long userId, @RequestParam String role) {
-        boolean success = adminService.revokeRole(userId, role);
-        if (success) {
-            return ResponseEntity.ok("Role revoked successfully");
-        }
-        return ResponseEntity.badRequest().body("Failed to revoke role. Invalid role or user.");
     }
 
     // Deactivate a user account

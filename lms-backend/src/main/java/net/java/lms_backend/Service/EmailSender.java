@@ -1,88 +1,40 @@
 package net.java.lms_backend.Service;
 
-import net.java.lms_backend.Repositrory.UserRepository;
-import net.java.lms_backend.Security.jwt.JwtTokenProvider;
-import net.java.lms_backend.dto.RegisterDTO;
 import net.java.lms_backend.entity.ConfirmationToken;
 import net.java.lms_backend.entity.User;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
-import static net.java.lms_backend.mapper.UserMapper.ToUserRegister;
+import java.util.UUID;
 
 @Service
-public class AuthService {
-    private final UserService userService;
+public class EmailSender {
+    private  final net.java.lms_backend.Repositrory.EmailSender emailRepository;
     private final ConfirmationTokenService confirmationTokenService;
-    private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final EmailSender emailSender;
-    public AuthService(UserService userService,
-                       EmailValidatorService emailValidatorService,
-                       ConfirmationTokenService confirmationTokenService,
-                       UserRepository userRepository,
-                       BCryptPasswordEncoder bCryptPasswordEncoder,
-                       JwtTokenProvider jwtTokenProvider, EmailSender emailSender) {
-        this.userService = userService;
+    public EmailSender(net.java.lms_backend.Repositrory.EmailSender emailSender, ConfirmationTokenService confirmationTokenService) {
+       this.emailRepository = emailSender;
         this.confirmationTokenService = confirmationTokenService;
-
-        this.userRepository = userRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.emailSender = emailSender;
     }
-
-    public ResponseEntity<String> register(RegisterDTO requestRegister) {
-        if(userRepository.findByUsername(requestRegister.getUsername()).isPresent())
-        {
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-                    .body("Error: Username is already taken");
-        }
-        if(userRepository.findByEmail(requestRegister.getEmail()).isPresent())
-        {
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-                    .body("Email is already in use");
-        }
-        User user=ToUserRegister(requestRegister);
-        user.setPassword(
-                bCryptPasswordEncoder.encode(user.getPassword())
-        );//Encode the Password
-        userRepository.save(user);
-        //Email Confirmation
-        emailSender.sendEmail(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Thank you for registering with us! " +
-                "We're excited to have you onboard.\n" + emailSender.sendEmail(user));
+    public String createToken(User user)
+    {
+        String token= UUID.randomUUID().toString();
+        ConfirmationToken confirmationToken =new ConfirmationToken(
+                user,
+                token,
+                LocalDateTime.now(),
+                LocalDateTime.now().plusMinutes(5)
+        );
+        confirmationTokenService.SaveConfirmationToken(confirmationToken);
+        return token;
     }
-
-    @Transactional
-    public ResponseEntity<String> confirmToken(String token) {
-        ConfirmationToken confirmationToken = confirmationTokenService
-                .getToken(token)
-                .orElseThrow(() ->
-                        new IllegalStateException("link not found"));
-
-        if (confirmationToken.getConfirmedDate() != null) {
-            return  ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-                    .body("User already confirmed");
-        }
-
-        LocalDateTime expiredDate = confirmationToken.getExpiresDate();
-
-        if (expiredDate.isBefore(LocalDateTime.now())) {
-            ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT)
-                    .body("Link expired");
-        }
-
-        confirmationTokenService.setConfirmedToken(token);
-        userService.enableUser(
-                confirmationToken.getUser().getEmail());
-        return ResponseEntity.ok("User successfully confirmed");
+    public String sendEmail( User user)
+    {
+        String link = "http://localhost:9090/api/auth/confirm?token="+createToken(user);
+        emailRepository.send(
+                user.getEmail(),
+                buildEmail(user.getFirstName(), link));
+        return "To complete your registration, please check your email for the activation " +
+                "link. Click the link in the email to activate your account and start using our services.";
     }
     private String buildEmail(String name, String link) {
         return "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#0b0c0c\">\n" +
@@ -151,32 +103,6 @@ public class AuthService {
                 "  </tbody></table><div class=\"yj6qo\"></div><div class=\"adL\">\n" +
                 "\n" +
                 "</div></div>";
-    }
-
-    public ResponseEntity<String> Login(User userRequest) {
-        Optional<User> optionalUser = userRepository.findByUsername(userRequest.getUsername());
-        if (optionalUser.isEmpty()) {
-            optionalUser = userRepository.findByEmail(userRequest.getEmail());
-        }
-
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-
-            if (bCryptPasswordEncoder.matches(userRequest.getPassword(), user.getPassword())) {
-                if (user.isEnabled()) {
-                    String token = jwtTokenProvider.generateToken(user.getUsername(),user.getRole().name());
-                    return ResponseEntity.ok("Bearer " + token);
-                } else {
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not enabled");
-                }
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Invalid Username, Email or Password");
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Invalid Username, Email or Password");
-        }
     }
 
 }
