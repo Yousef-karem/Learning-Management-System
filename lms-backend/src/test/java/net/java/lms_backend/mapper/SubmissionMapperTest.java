@@ -1,9 +1,9 @@
 package net.java.lms_backend.mapper;
 
 import net.java.lms_backend.dto.SubmissionDTO;
-import net.java.lms_backend.entity.Assignment;
-import net.java.lms_backend.entity.Student;
+import net.java.lms_backend.entity.Assignment;;
 import net.java.lms_backend.entity.Submission;
+import net.java.lms_backend.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +23,7 @@ class SubmissionMapperTest {
     private SubmissionDTO submissionDTO;
     private Submission submission;
     private Assignment assignment;
-    private Student student;
+    private User student;
     private LocalDateTime submittedAt;
 
     @BeforeEach
@@ -42,7 +42,7 @@ class SubmissionMapperTest {
         assignment = new Assignment();
         assignment.setId(1L);
 
-        student = new Student();
+        student = new User();
         student.setId(1L);
 
         submission = new Submission();

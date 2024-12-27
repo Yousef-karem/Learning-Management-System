@@ -31,19 +31,19 @@ public class SubmissionService {
     @Autowired
     private AssignmentRepository assignmentRepository;
 
-    @Autowired
-    private StudentRepository studentRepository;
+    private final UserRepository userRepository;
 
     private final SubmissionMapper submissionMapper;
+    private final NotificationService notificationService;
 
     public SubmissionService(SubmissionRepository submissionRepository,
-                             StudentRepository studentRepository,
-                             AssignmentRepository assignmentRepository,
-                             SubmissionMapper submissionMapper) {
+                             AssignmentRepository assignmentRepository, UserRepository userRepository,
+                             SubmissionMapper submissionMapper, NotificationService notificationService) {
         this.submissionRepository = submissionRepository;
-        this.studentRepository = studentRepository;
         this.assignmentRepository = assignmentRepository;
+        this.userRepository = userRepository;
         this.submissionMapper = submissionMapper;
+        this.notificationService = notificationService;
     }
 
     public SubmissionDTO createSubmission(Long assignmentId, Long studentId, MultipartFile file) {
@@ -57,7 +57,7 @@ public class SubmissionService {
         Submission submission = new Submission();
         submission.setFileName(fileName);
         submission.setSubmittedAt(LocalDateTime.now());
-        submission.setStudent(studentRepository.findById(studentId)
+        submission.setStudent(userRepository.findById(studentId)
                 .orElseThrow(() -> new IllegalArgumentException("Student not found")));
         submission.setAssignment(assignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Assignment not found")));
@@ -118,7 +118,9 @@ public class SubmissionService {
         submission.setGrade(grade);
         submission.setFeedback(feedback);
         Submission updatedSubmission = submissionRepository.save(submission);
-
+        notificationService.notify(submission.getStudent(),
+                "Your Score is "+grade+" \n"+
+                "feedback: "+feedback);
         return submissionMapper.toDTO(updatedSubmission);
     }
     public List<SubmissionDTO> getSubmissionsByAssignmentId(Long assignmentId) {

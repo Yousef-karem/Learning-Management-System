@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
 
 public class StudentDTO {
     private Long id;
@@ -17,7 +15,25 @@ public class StudentDTO {
         this.email=email;
         this.username=username;
     }
+
+    public StudentDTO(String username, String email) {
+        this.username = username;
+        this.email = email;
+    }
+
     public  StudentDTO(){
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Long getId() {

@@ -17,42 +17,78 @@ import java.util.List;
 import java.util.stream.Collectors;
 import net.java.lms_backend.mapper.StudentMapper;
 
-@Getter
-@Setter
 @Service
 public class CourseService {
     private final CourseRepository courseRepo;
     private final UserRepository userRepo;
-    private final InstructorRepository instructorRepo;
     private final LessonRepositery lessonRepo;
-    private final StudentRepository studentRepository;
     private final EnrollmentRepo enrollmentRepo;
     private final AttendanceRepo attendanceRepo;
     private final PerformanceRepo performanceRepo;
+    private final NotificationService notificationService;
 
-    public CourseService(CourseRepository courseRepo, UserRepository userRepo, InstructorRepository instructorRepo, LessonRepositery lessonRepo, EnrollmentRepo enrollmentRepo, StudentRepository studentRepository, AttendanceRepo attendanceRepo,PerformanceRepo performanceRepo) {
-        this.courseRepo = courseRepo;
-        this.userRepo = userRepo;
-        this.instructorRepo = instructorRepo;
-        this.lessonRepo=lessonRepo;
-        this.enrollmentRepo=enrollmentRepo;
-        this.studentRepository = studentRepository;
-        this.attendanceRepo=attendanceRepo;
-        this.performanceRepo=performanceRepo;
+    public UserRepository getUserRepo() {
+        return userRepo;
     }
 
-    public Coursedto CreateCourse(Coursedto coursedto) {
+    public CourseRepository getCourseRepo() {
+        return courseRepo;
+    }
+
+
+    public LessonRepositery getLessonRepo() {
+        return lessonRepo;
+    }
+
+    public EnrollmentRepo getEnrollmentRepo() {
+        return enrollmentRepo;
+    }
+
+
+    public AttendanceRepo getAttendanceRepo() {
+        return attendanceRepo;
+    }
+
+    public PerformanceRepo getPerformanceRepo() {
+        return performanceRepo;
+    }
+
+
+    public CourseService(CourseRepository courseRepo,
+                         UserRepository userRepo,
+                         LessonRepositery lessonRepo,
+                         EnrollmentRepo enrollmentRepo,
+                         AttendanceRepo attendanceRepo, PerformanceRepo performanceRepo, NotificationService notificationService) {
+        this.courseRepo = courseRepo;
+        this.userRepo = userRepo;
+        this.lessonRepo=lessonRepo;
+        this.enrollmentRepo=enrollmentRepo;
+        this.attendanceRepo=attendanceRepo;
+        this.performanceRepo=performanceRepo;
+
+        this.notificationService = notificationService;
+    }
+
+    public void confirmEnrollment(Long enrollmentId) {
+        Enrollment enrollment = enrollmentRepo.findById(enrollmentId)
+                .orElseThrow(() -> new RuntimeException("Student Enrollment not found with id: " + enrollmentId));
+        enrollment.setConfirmed(true);
+        notificationService.notify(enrollment.getStudent(),"Your enrol for course "+enrollment.getCourse().getTitle()
+                +" has been confirmed.");
+        enrollmentRepo.save(enrollment);
+    }
+    public Coursedto CreateCourse(User user,Coursedto coursedto) {
 //        User user = userRepo.findById(coursedto.getUser ().getId())
 //                .orElseThrow(() -> new RuntimeException("User  not found with id: " + coursedto.getUser ().getId()));
 
-        Instructor instructor = instructorRepo.findById(coursedto.getInstructorId())
-                .orElseThrow(() -> new RuntimeException("Instructor not found with id: " + coursedto.getInstructorId()));
+
+        User instructor =userRepo.findById(user.getId())
+                .orElseThrow(() -> new RuntimeException("Instructor not found with id: " + user.getId()));
 
         Course course = new Course();
         course.setTitle(coursedto.getTitle());
         course.setDescription(coursedto.getDescription());
         course.setDuration(coursedto.getDuration());
-//        course.setUser (user);
         course.setInstructor(instructor);
 
         if (coursedto.getMediaFiles() != null) {
@@ -91,6 +127,7 @@ public class CourseService {
                 .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
 
         course.addLesson(lesson);
+        notificationService.notifyAll(courseId, lesson.getTitle() + " has been added to the course");
         return lessonRepo.save(lesson);
     }
     public void uploadMediaFiles(Long courseId, List<MultipartFile> files) {
@@ -115,6 +152,8 @@ public class CourseService {
             } catch (IOException e) {
                 throw new RuntimeException("Error saving file: " + file.getOriginalFilename(), e);
             }
+            notificationService.notifyAll(courseId,
+                    file.getOriginalFilename()+ " has been added to the course");
         }
         courseRepo.save(course);
     }
@@ -122,7 +161,7 @@ public class CourseService {
         Course course = courseRepo.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
 
-        Student student = studentRepository.findById(studentId)
+        User student = userRepo.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found with id: " + studentId));
 
         Enrollment enrollment = new Enrollment();
@@ -135,6 +174,7 @@ public class CourseService {
         performance.setCourse(course);
         performance.setTotalLessonsAttended(0);
         performanceRepo.save(performance);
+        notificationService.notify(course.getInstructor(),student.getUsername()+" has been enrolled to the course and waiting for confirm");
     }
 
     public List<StudentDTO> getEnrolledStudents(Long courseId) {
@@ -151,6 +191,9 @@ public class CourseService {
         attendance.setOtp(otp);
         attendance.setActive(true);
         attendanceRepo.save(attendance);
+        notificationService.notifyAll(lesson.getCourse().getId(),"for course "+lesson.getCourse().getTitle()+
+                " use this link to validate you Attendance\n"+
+                "http://localhost:9090/api/student/course/"+lesson.getCourse().getId()+"/lessons/"+lesson.getId()+"/validate-otp");
         return otp;
 
     }
@@ -158,7 +201,7 @@ public class CourseService {
         Attendance attendance = attendanceRepo.findByLessonIdAndOtp(lessonId, otp);
         if (attendance != null && attendance.isActive()) {
             attendance.setActive(false);
-            attendance.setStudent(studentRepository.findById(studentId).orElseThrow(() -> new RuntimeException("Student not found")));
+            attendance.setStudent(userRepo.findById(studentId).orElseThrow(() -> new RuntimeException("Student not found")));
             attendanceRepo.save(attendance);
             Performance performance = performanceRepo.findByStudentIdAndCourseId(studentId, attendance.getLesson().getCourse().getId());
             if (performance != null) {
@@ -220,4 +263,24 @@ public class CourseService {
                 .collect(Collectors.toList());
     }
 
+    public void deleteStudentFromCourse(Long courseId, Long studentId) {
+        Enrollment enrollment = enrollmentRepo.findByCourseIdAndStudentId(courseId, studentId)
+                .orElseThrow(() -> new RuntimeException("Student Enrollment not found for courseId: " + courseId + " and studentId: " + studentId));
+        User user=userRepo.findById(studentId).orElseThrow(()
+                -> new RuntimeException("User not found for studentId: " + studentId));
+        Course course=courseRepo.findById(
+                courseId).orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+        notificationService.notify(user,"You have been deleted from course "+course.getTitle());
+        enrollmentRepo.delete(enrollment);
+
+        Performance performance = performanceRepo.findByStudentIdAndCourseId(studentId, courseId);
+        if (performance != null) {
+            performanceRepo.delete(performance);
+        }
+    }
+    public List<MediaFiles> getMediaFilesByCourseId(Long courseId) {
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+        return course.getMediaFiles();
+    }
 }

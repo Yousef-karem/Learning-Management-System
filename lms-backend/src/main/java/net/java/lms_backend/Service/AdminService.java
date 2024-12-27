@@ -1,5 +1,6 @@
 package net.java.lms_backend.Service;
 
+import net.java.lms_backend.Repositrory.ConfirmationTokenRepository;
 import net.java.lms_backend.entity.User;
 import net.java.lms_backend.entity.Role;
 import net.java.lms_backend.Repositrory.UserRepository;
@@ -13,26 +14,16 @@ import java.util.Optional;
 public class AdminService {
 
     private final UserRepository userRepository;
-
+    private final ConfirmationTokenRepository confirmationTokenRepository;
     @Autowired
-    public AdminService(UserRepository userRepository) {
+    public AdminService(UserRepository userRepository, ConfirmationTokenRepository confirmationTokenRepository) {
         this.userRepository = userRepository;
+        this.confirmationTokenRepository = confirmationTokenRepository;
     }
 
     // Get all users in the system
     public List<User> getAllUsers() {
         return userRepository.findAll();
-    }
-
-    // Promote a user to admin
-    public User promoteToAdmin(Long userId) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isPresent() && !userOpt.get().getRole().equals(Role.ADMIN)) {
-            User user = userOpt.get();
-            user.setRole(Role.ADMIN);
-            return userRepository.save(user);
-        }
-        return null; // Return null if the user doesn't exist or is already an admin
     }
 
     // Assign a role to a user
@@ -46,7 +37,9 @@ public class AdminService {
             if (newRole == null) {
                 return false; // Invalid role
             }
-
+            if(user.isInitialAdmin()) {
+                return false;
+            }
             user.setRole(newRole);
             userRepository.save(user);
             return true;
@@ -54,22 +47,6 @@ public class AdminService {
         return false; // User not found
     }
 
-    // Revoke a role from a user (set to 'STUDENT' or default role)
-    public boolean revokeRole(Long userId, String role) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            Role revokeRole = Role.valueOf(role.toUpperCase());
-
-            // Check if the role matches the current user role
-            if (user.getRole().equals(revokeRole)) {
-                user.setRole(Role.STUDENT); // Default to STUDENT role
-                userRepository.save(user);
-                return true;
-            }
-        }
-        return false; // User not found or role mismatch
-    }
 
     // Deactivate a user account
     public boolean deactivateUser(Long userId) {

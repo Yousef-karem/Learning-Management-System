@@ -24,6 +24,9 @@ public class RegisterDTO {
         this.password = password;
     }
 
+    public RegisterDTO() {
+    }
+
     public String getFirstname() {
         return firstname;
     }

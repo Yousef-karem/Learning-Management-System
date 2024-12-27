@@ -1,19 +1,19 @@
 package net.java.lms_backend.mapper;
 
 import net.java.lms_backend.dto.StudentDTO;
-import net.java.lms_backend.entity.Student;
+import net.java.lms_backend.entity.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StudentMapperTest {
 
-    private Student student;
+    private User student;
     private StudentDTO studentDTO;
 
     @BeforeEach
     void setUp() {
-        student = new Student();
+        student = new User();
         student.setId(1L);
         student.setUsername("testUser");
         student.setEmail("test@example.com");
@@ -66,7 +66,7 @@ class StudentMapperTest {
 
     @Test
     void mapToStudent_WithValidDTO_ShouldMapAllFieldsCorrectly() {
-        Student result = StudentMapper.mapToStudent(studentDTO);
+        User result = StudentMapper.mapToStudent(studentDTO);
 
         assertNotNull(result);
         assertEquals(studentDTO.getId(), result.getId());
@@ -76,7 +76,7 @@ class StudentMapperTest {
 
     @Test
     void mapToStudent_WithNullDTO_ShouldReturnNull() {
-        Student result = StudentMapper.mapToStudent(null);
+        User result = StudentMapper.mapToStudent(null);
 
         assertNull(result);
     }
@@ -85,7 +85,7 @@ class StudentMapperTest {
     void mapToStudent_WithEmptyFields_ShouldMapCorrectly() {
         studentDTO = new StudentDTO(1L, "", "");
 
-        Student result = StudentMapper.mapToStudent(studentDTO);
+        User result = StudentMapper.mapToStudent(studentDTO);
 
         assertNotNull(result);
         assertEquals(studentDTO.getId(), result.getId());
@@ -97,7 +97,7 @@ class StudentMapperTest {
     void mapToStudent_WithNullFields_ShouldMapCorrectly() {
         studentDTO = new StudentDTO(1L, null, null);
 
-        Student result = StudentMapper.mapToStudent(studentDTO);
+        User result = StudentMapper.mapToStudent(studentDTO);
 
         assertNotNull(result);
         assertEquals(studentDTO.getId(), result.getId());

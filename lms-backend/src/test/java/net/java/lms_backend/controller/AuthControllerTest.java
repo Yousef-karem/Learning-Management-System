@@ -1,99 +1,107 @@
 package net.java.lms_backend.controller;
 
-import net.java.lms_backend.Service.UserService;
+import net.java.lms_backend.Service.AuthService;
 import net.java.lms_backend.dto.LoginRequestDTO;
-import net.java.lms_backend.entity.User;
+import net.java.lms_backend.dto.RegisterDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
-public class AuthControllerTest {
+class AuthControllerTest {
 
     @Mock
-    private UserService userService; // Mocking the UserService
-
-    @InjectMocks
-    private AuthController authController; // Injecting mocked service into the controller
-
-    private User mockUser;
+    private AuthService authService;
+    private AuthController authController;
     private LoginRequestDTO loginRequestDTO;
+    private RegisterDTO registerDTO;
 
     @BeforeEach
-    public void setup() {
-        // Setting up test data
-        mockUser = new User();
-        mockUser.setUsername("Joo91");
-        mockUser.setPassword("12345");
-        mockUser.setEmail("yousefkarem91@gmail.com");
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        authController = new AuthController(authService);
 
         loginRequestDTO = new LoginRequestDTO();
-        loginRequestDTO.setIdentifier("Joo91");
-        loginRequestDTO.setPassword("12345");
+        loginRequestDTO.setEmail("test@test.com");
+        loginRequestDTO.setPassword("password");
+
+        registerDTO = new RegisterDTO();
+        registerDTO.setEmail("test@test.com");
+        registerDTO.setPassword("password");
     }
 
     @Test
-    public void testLogin_Success() {
-        // Arrange
-        when(userService.login(any())).thenReturn(true); // Mock the login service method to return true for success
+    void login_Success() {
+        when(authService.Login(any())).thenReturn(ResponseEntity.ok("JWT Token"));
 
-        // Act
-        ResponseEntity<String> response = authController.login(loginRequestDTO);
+        ResponseEntity<String> response = authController.Login(loginRequestDTO);
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Login successful!", response.getBody());
-        verify(userService, times(1)).login(any()); // Ensure the login method is called once
+        assertEquals("JWT Token", response.getBody());
+        verify(authService).Login(any());
     }
 
     @Test
-    public void testLogin_Failure() {
-        // Arrange
-        when(userService.login(any())).thenReturn(false); // Mock the login service method to return false for failure
+    void register_Success() {
+        when(authService.register(registerDTO)).thenReturn(ResponseEntity.ok("Registration successful"));
 
-        // Act
-        ResponseEntity<String> response = authController.login(loginRequestDTO);
+        ResponseEntity<String> response = authController.Register(registerDTO);
 
-        // Assert
-        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Registration successful", response.getBody());
+        verify(authService).register(registerDTO);
+    }
+
+    @Test
+    void confirmToken_Success() {
+        String token = "valid-token";
+        when(authService.confirmToken(token)).thenReturn(ResponseEntity.ok("Email confirmed"));
+
+        ResponseEntity<String> response = authController.confirm(token);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Email confirmed", response.getBody());
+        verify(authService).confirmToken(token);
+    }
+
+    @Test
+    void login_Failure() {
+        when(authService.Login(any())).thenReturn(ResponseEntity.badRequest().body("Invalid credentials"));
+
+        ResponseEntity<String> response = authController.Login(loginRequestDTO);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("Invalid credentials", response.getBody());
-        verify(userService, times(1)).login(any()); // Ensure the login method is called once
+        verify(authService).Login(any());
     }
 
     @Test
-    public void testRegister_Success() {
-        // Arrange
-        when(userService.registerUser(any(User.class))).thenReturn(mockUser); // Mock the register service method
+    void register_Failure() {
+        when(authService.register(registerDTO)).thenReturn(ResponseEntity.badRequest().body("Email already exists"));
 
-        // Act
-        ResponseEntity<User> response = authController.register(mockUser);
+        ResponseEntity<String> response = authController.Register(registerDTO);
 
-        // Assert
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(mockUser, response.getBody());
-        verify(userService, times(1)).registerUser(any()); // Ensure the register method is called once
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Email already exists", response.getBody());
+        verify(authService).register(registerDTO);
     }
 
     @Test
-    public void testRegister_Failure() {
-        // In case there's a failure scenario (e.g., duplicate username/email)
-        when(userService.registerUser(any(User.class))).thenThrow(new RuntimeException("Username already taken"));
+    void confirmToken_Failure() {
+        String token = "invalid-token";
+        when(authService.confirmToken(token)).thenReturn(ResponseEntity.badRequest().body("Invalid token"));
 
-        // Act and Assert
-        try {
-            authController.register(mockUser);
-            fail("Expected exception to be thrown");
-        } catch (RuntimeException e) {
-            assertEquals("Username already taken", e.getMessage());
-        }
+        ResponseEntity<String> response = authController.confirm(token);
 
-        verify(userService, times(1)).registerUser(any()); // Ensure the register method is called once
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Invalid token", response.getBody());
+        verify(authService).confirmToken(token);
     }
 }

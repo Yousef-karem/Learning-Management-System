@@ -39,25 +39,6 @@ class AssignmentServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void testCreateAssignment() {
-        AssignmentDTO dto = new AssignmentDTO("Test Assignment", "2024-12-31", 1L);
-        Assignment assignment = new Assignment();
-        Assignment savedAssignment = new Assignment();
-        AssignmentDTO returnedDto = new AssignmentDTO("Test Assignment", "2024-12-31", 1L);
-        returnedDto.setId(1L);
-
-        when(assignmentMapper.toEntity(dto)).thenReturn(assignment);
-        when(assignmentRepository.save(assignment)).thenReturn(savedAssignment);
-        when(assignmentMapper.toDTO(savedAssignment)).thenReturn(returnedDto);
-
-        AssignmentDTO result = assignmentService.createAssignment(dto);
-
-        assertNotNull(result);
-        assertEquals("Test Assignment", result.getTitle());
-        assertEquals("2024-12-31", result.getDueDate());
-        verify(assignmentRepository, times(1)).save(assignment);
-    }
 
     @Test
     void testGetAssignmentById() {

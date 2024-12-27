@@ -1,9 +1,12 @@
 package net.java.lms_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import  net.java.lms_backend.entity.Attendance;
+import org.aspectj.apache.bcel.generic.RET;
+
 import java.util.List;
 
 @Entity
@@ -15,6 +18,7 @@ public class Lesson {
     private String title;
     @Column(length =1000)
     private String content;
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
@@ -49,5 +53,9 @@ public class Lesson {
 
     public String getTitle() {
         return title;
+    }
+
+    public String getContent() {
+        return content;
     }
 }

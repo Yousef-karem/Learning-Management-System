@@ -12,12 +12,12 @@ public class CourseMapper {
                 course.getId(),
                 course.getTitle(),
                 course.getDescription(),
-                course.getDuration(),
+                course.getDuration()
+                ,course.getInstructor(),
                 course.getMediaFiles().stream()
                         .map(mediaFile -> new MediaFiles(mediaFile.getId(), mediaFile.getFileName()))
-                        .collect(Collectors.toList()),
+                        .collect(Collectors.toList())
                // course.getUser().getId(),
-                course.getInstructor().getId()
         );
 
 

@@ -15,17 +15,34 @@ public class Enrollment {
 
     @ManyToOne
     @JoinColumn(name = "student_id")
-    private Student student;
+    private User student;
 
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
+    private Boolean confirmed=false;
+
+    public long getEnrollmentId() {
+        return EnrollmentId;
+    }
+
+    public void setEnrollmentId(long enrollmentId) {
+        EnrollmentId = enrollmentId;
+    }
+
+    public Boolean getConfirmed() {
+        return confirmed;
+    }
+
+    public void setConfirmed(Boolean confirmed) {
+        this.confirmed = confirmed;
+    }
 
     public void setCourse(Course course) {
         this.course = course;
     }
 
-    public void setStudent(Student student) {
+    public void setStudent(User student) {
         this.student = student;
     }
 
@@ -33,7 +50,8 @@ public class Enrollment {
         return course;
     }
 
-    public Student getStudent() {
+    public User getStudent() {
+
         return student;
     }
 }

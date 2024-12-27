@@ -1,6 +1,7 @@
 package net.java.lms_backend.dto;
 
 public class QuizDTO {
+    private String title;
     private Long numOfMCQ;
     private Long numOfTrueFalse;
     private Long numOfShortAnswer;
@@ -27,5 +28,8 @@ public class QuizDTO {
 
     public void setNumOfShortAnswer(Long numOfShortAnswer) {
         this.numOfShortAnswer = numOfShortAnswer;
+    }
+    public String getTitle() {
+        return title;
     }
 }

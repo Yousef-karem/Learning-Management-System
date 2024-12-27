@@ -1,62 +1,70 @@
 package net.java.lms_backend.Service;
 
-import net.java.lms_backend.Repositrory.EmailSender;
 import net.java.lms_backend.Repositrory.UserRepository;
-import net.java.lms_backend.Security.Jwt.JwtTokenProvider;
-import net.java.lms_backend.dto.LoginRequestDTO;
+import net.java.lms_backend.Security.jwt.JwtTokenProvider;
 import net.java.lms_backend.dto.RegisterDTO;
 import net.java.lms_backend.entity.ConfirmationToken;
+import net.java.lms_backend.entity.Email;
+import net.java.lms_backend.entity.EmailType;
 import net.java.lms_backend.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import static net.java.lms_backend.mapper.UserMapper.ToUserLogin;
 import static net.java.lms_backend.mapper.UserMapper.ToUserRegister;
 
 @Service
 public class AuthService {
     private final UserService userService;
     private final ConfirmationTokenService confirmationTokenService;
-    private final EmailSender emailSender;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-//    private final JwtTokenProvider tokenProvider;
-//    private final AuthenticationManager authenticationManager;
-    public AuthService(UserService userService, EmailValidatorService emailValidatorService, ConfirmationTokenService confirmationTokenService, EmailSender emailSender, UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    private final JwtTokenProvider jwtTokenProvider;
+    private final EmailService emailService;
+    public AuthService(UserService userService,
+                       EmailValidatorService emailValidatorService,
+                       ConfirmationTokenService confirmationTokenService,
+                       UserRepository userRepository,
+                       BCryptPasswordEncoder bCryptPasswordEncoder,
+                       JwtTokenProvider jwtTokenProvider,
+                       EmailService emailService) {
         this.userService = userService;
         this.confirmationTokenService = confirmationTokenService;
-        this.emailSender = emailSender;
+
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-//        this.tokenProvider = tokenProvider;
-//        this.authenticationManager = authenticationManager;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.emailService = emailService;
     }
 
-    public ResponseEntity<String> register(RegisterDTO user) {
-        ResponseEntity<String> ret= userService.signUpUser(ToUserRegister(user));
-        if(ret.getStatusCode().equals(HttpStatus.OK)){
-            String token=ret.getBody();
-            String link = "http://localhost:9090/api/auth/confirm?token="+token;
-            emailSender.send(
-                    user.getEmail(),
-                    buildEmail(user.getFirstname(), link));
-            ret= ResponseEntity.status(HttpStatus.CREATED).body("Thank you for registering with us! " +
-                    "We're excited to have you onboard.\n" +
-                    "To complete your registration, please check your email for the activation " +
-                    "link. Click the link in the email to activate your account and start using our services.");
+    public ResponseEntity<String> register(RegisterDTO requestRegister) {
+        if(userRepository.findByUsername(requestRegister.getUsername()).isPresent())
+        {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                    .body("Error: Username is already taken");
         }
-        return ret;
-
+        if(userRepository.findByEmail(requestRegister.getEmail()).isPresent())
+        {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                    .body("Email is already in use");
+        }
+        User user=ToUserRegister(requestRegister);
+        user.setPassword(
+                bCryptPasswordEncoder.encode(user.getPassword())
+        );//Encode the Password
+        userRepository.save(user);
+        //Email Confirmation
+        Email email=new Email("http://localhost:9090/api/auth/confirm?token="+emailService.createToken(user)
+                ,user, EmailType.Confirmation);
+        emailService.send(email);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Thank you for registering with us! " +
+                "We're excited to have you onboard.\n" +
+                "To complete your registration, please check your email for the activation " +
+               "link. Click the link in the email to activate your account and start using our services.");
     }
 
     @Transactional
@@ -162,17 +170,9 @@ public class AuthService {
             User user = optionalUser.get();
 
             if (bCryptPasswordEncoder.matches(userRequest.getPassword(), user.getPassword())) {
-                if(user.isEnabled()) {
-//                    authenticationManager.authenticate(
-//                            new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
-//                    );
-//
-//                    List<String> roles = new ArrayList<>();
-//                    roles.add(user.getRole().name());
-//
-//                    String token = tokenProvider.generateToken(user.getUsername(), roles);
-//                    return ResponseEntity.ok("Bearer " + token);
-                        return ResponseEntity.ok("Successfully logged in");
+                if (user.isEnabled()) {
+                    String token = jwtTokenProvider.generateToken(user.getUsername(),user.getRole().name());
+                    return ResponseEntity.ok("Bearer " + token);
                 } else {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not enabled");
                 }

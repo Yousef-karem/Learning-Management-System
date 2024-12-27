@@ -4,38 +4,38 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.java.lms_backend.entity.Instructor;
 import net.java.lms_backend.entity.Lesson;
 import net.java.lms_backend.entity.MediaFiles;
 import net.java.lms_backend.entity.User;
 import java.util.List;
 
-@Getter
-@Setter
 @AllArgsConstructor
 public class Coursedto {
     private Long id;
     private String title;
     private String description;
     private String duration;
-    private Long instructorId;
-//    private User user;
-//    private Long userId;
-    private Instructor instructor;
+    private User instructor;
     private List<Lesson> lessons;
     private List<Long> lessonIds;
     private List<MediaFiles> mediaFiles;
     private List<QuestionDTO> questionsBank;
 
 
-    public Coursedto(Long id, String title, String description, String duration, List<MediaFiles> mediaFiles,Long instructorId) {
+    public Coursedto(Long id,
+                     String title,
+                     String description,
+                     String duration,
+                     User instructor,
+                     List<MediaFiles> mediaFiles) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.duration = duration;
         this.mediaFiles = mediaFiles;
+        this.instructor = instructor;
 //        this.userId = userid;
-        this.instructorId = instructorId;
+
     }
 
     public Coursedto(Long id, String title, String description, String duration, List<MediaFiles> mediaFiles, Long id2, List<Long> lessonIds) {
@@ -47,7 +47,7 @@ public class Coursedto {
 //    public User getUser() {
 //        return user;
 //    }
-    public Instructor getInstructor() {
+    public User getInstructor() {
         return instructor;
     }
 
@@ -71,12 +71,38 @@ public class Coursedto {
         return duration;
     }
 
-    public Long getInstructorId() {
-        return instructorId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
+    public void setMediaFiles(List<MediaFiles> mediaFiles) {
+        this.mediaFiles = mediaFiles;
+    }
 
-//    public Long getUserId() {
+    public void setLessonIds(List<Long> lessonIds) {
+        this.lessonIds = lessonIds;
+    }
+
+    public void setLessons(List<Lesson> lessons) {
+        this.lessons = lessons;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setInstructor(User instructor) {
+        this.instructor = instructor;
+    }
+    //    public Long getUserId() {
 //        return userId;
 //    }
 

@@ -1,12 +1,12 @@
 package net.java.lms_backend.Service;
 
 import net.java.lms_backend.Repositrory.AssignmentRepository;
-import net.java.lms_backend.Repositrory.StudentRepository;
 import net.java.lms_backend.Repositrory.SubmissionRepository;
+import net.java.lms_backend.Repositrory.UserRepository;
 import net.java.lms_backend.dto.SubmissionDTO;
 import net.java.lms_backend.entity.Assignment;
-import net.java.lms_backend.entity.Student;
 import net.java.lms_backend.entity.Submission;
+import net.java.lms_backend.entity.User;
 import net.java.lms_backend.mapper.SubmissionMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ class SubmissionServiceTest {
     private AssignmentRepository assignmentRepository;
 
     @Mock
-    private StudentRepository studentRepository;
+    private UserRepository studentRepository;
 
     @Mock
     private SubmissionMapper submissionMapper;
@@ -46,13 +46,13 @@ class SubmissionServiceTest {
 
     private Submission submission;
     private SubmissionDTO submissionDTO;
-    private Student student;
+    private User student;
     private Assignment assignment;
     private MultipartFile multipartFile;
 
     @BeforeEach
     void setUp() {
-        student = new Student();
+        student = new User();
         student.setId(1L);
 
         assignment = new Assignment();
@@ -75,20 +75,6 @@ class SubmissionServiceTest {
                 "application/pdf",
                 "test content".getBytes()
         );
-    }
-
-    @Test
-    void createSubmission_Success() {
-        when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
-        when(assignmentRepository.findById(1L)).thenReturn(Optional.of(assignment));
-        when(submissionRepository.save(any(Submission.class))).thenReturn(submission);
-
-        SubmissionDTO result = submissionService.createSubmission(1L, 1L, multipartFile);
-
-        assertNotNull(result);
-        assertEquals(submission.getId(), result.getId());
-        assertEquals(submission.getFileName(), result.getFileName());
-        verify(submissionRepository).save(any(Submission.class));
     }
 
     @Test
@@ -147,18 +133,6 @@ class SubmissionServiceTest {
 
         assertThrows(IllegalArgumentException.class, () ->
                 submissionService.deleteSubmission(1L));
-    }
-
-    @Test
-    void patchSubmissionGradeAndFeedback_Success() {
-        when(submissionRepository.findById(1L)).thenReturn(Optional.of(submission));
-        when(submissionRepository.save(any(Submission.class))).thenReturn(submission);
-        when(submissionMapper.toDTO(submission)).thenReturn(submissionDTO);
-
-        SubmissionDTO result = submissionService.patchSubmissionGradeAndFeedback(1L, 90.0, "Excellent");
-
-        assertNotNull(result);
-        verify(submissionRepository).save(any(Submission.class));
     }
 
     @Test

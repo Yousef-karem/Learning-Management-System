@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Enrollmentdto {
@@ -17,5 +15,15 @@ public class Enrollmentdto {
         return studentId;
     }
 
+    public void setStudentId(Long studentId) {
+        this.studentId = studentId;
+    }
 
+    public Long getCourseId() {
+        return courseId;
+    }
+
+    public void setCourseId(Long courseId) {
+        this.courseId = courseId;
+    }
 }

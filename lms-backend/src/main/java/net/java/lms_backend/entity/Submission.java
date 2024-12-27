@@ -6,8 +6,6 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
 @Entity
 public class Submission {
     @Id
@@ -18,7 +16,7 @@ public class Submission {
     private Assignment assignment;
 
     @ManyToOne
-    private Student student;
+    private User student;
 
     private LocalDateTime submittedAt = LocalDateTime.now();
 
@@ -30,7 +28,7 @@ public class Submission {
     private String feedback = null;
     public Submission() {}
 
-    public Submission(Assignment assignment, Student student, String fileUrl) {
+    public Submission(Assignment assignment, User student, String fileUrl) {
         this.assignment = assignment;
         this.student = student;
         this.submittedAt = LocalDateTime.now();
@@ -50,7 +48,7 @@ public class Submission {
         this.assignment = assignment;
     }
 
-    public void setStudent(Student student) {
+    public void setStudent(User student) {
         this.student = student;
     }
 
@@ -74,7 +72,8 @@ public class Submission {
         return assignment;
     }
 
-    public Student getStudent() {
+    public User getStudent() {
+
         return student;
     }
 
