@@ -21,9 +21,7 @@ import net.java.lms_backend.mapper.StudentMapper;
 public class CourseService {
     private final CourseRepository courseRepo;
     private final UserRepository userRepo;
-    private final InstructorRepository instructorRepo;
     private final LessonRepositery lessonRepo;
-    private final StudentRepository studentRepository;
     private final EnrollmentRepo enrollmentRepo;
     private final AttendanceRepo attendanceRepo;
     private final PerformanceRepo performanceRepo;
@@ -37,9 +35,6 @@ public class CourseService {
         return courseRepo;
     }
 
-    public InstructorRepository getInstructorRepo() {
-        return instructorRepo;
-    }
 
     public LessonRepositery getLessonRepo() {
         return lessonRepo;
@@ -49,9 +44,6 @@ public class CourseService {
         return enrollmentRepo;
     }
 
-    public StudentRepository getStudentRepository() {
-        return studentRepository;
-    }
 
     public AttendanceRepo getAttendanceRepo() {
         return attendanceRepo;
@@ -64,17 +56,13 @@ public class CourseService {
 
     public CourseService(CourseRepository courseRepo,
                          UserRepository userRepo,
-                         InstructorRepository instructorRepo,
                          LessonRepositery lessonRepo,
                          EnrollmentRepo enrollmentRepo,
-                         StudentRepository studentRepository,
                          AttendanceRepo attendanceRepo, PerformanceRepo performanceRepo, NotificationService notificationService) {
         this.courseRepo = courseRepo;
         this.userRepo = userRepo;
-        this.instructorRepo = instructorRepo;
         this.lessonRepo=lessonRepo;
         this.enrollmentRepo=enrollmentRepo;
-        this.studentRepository = studentRepository;
         this.attendanceRepo=attendanceRepo;
         this.performanceRepo=performanceRepo;
 
@@ -94,8 +82,8 @@ public class CourseService {
 //                .orElseThrow(() -> new RuntimeException("User  not found with id: " + coursedto.getUser ().getId()));
 
 
-        Instructor instructor =new Instructor( userRepo.findById(user.getId())
-                .orElseThrow(() -> new RuntimeException("Instructor not found with id: " + user.getId())));
+        User instructor =userRepo.findById(user.getId())
+                .orElseThrow(() -> new RuntimeException("Instructor not found with id: " + user.getId()));
 
         Course course = new Course();
         course.setTitle(coursedto.getTitle());
@@ -173,7 +161,7 @@ public class CourseService {
         Course course = courseRepo.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
 
-        Student student = studentRepository.findById(studentId)
+        User student = userRepo.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found with id: " + studentId));
 
         Enrollment enrollment = new Enrollment();
@@ -203,6 +191,9 @@ public class CourseService {
         attendance.setOtp(otp);
         attendance.setActive(true);
         attendanceRepo.save(attendance);
+        notificationService.notifyAll(lesson.getCourse().getId(),"for course "+lesson.getCourse().getTitle()+
+                " use this link to validate you Attendance\n"+
+                "http://localhost:9090/api/student/course/"+lesson.getCourse().getId()+"/lessons/"+lesson.getId()+"/validate-otp");
         return otp;
 
     }
@@ -210,7 +201,7 @@ public class CourseService {
         Attendance attendance = attendanceRepo.findByLessonIdAndOtp(lessonId, otp);
         if (attendance != null && attendance.isActive()) {
             attendance.setActive(false);
-            attendance.setStudent(studentRepository.findById(studentId).orElseThrow(() -> new RuntimeException("Student not found")));
+            attendance.setStudent(userRepo.findById(studentId).orElseThrow(() -> new RuntimeException("Student not found")));
             attendanceRepo.save(attendance);
             Performance performance = performanceRepo.findByStudentIdAndCourseId(studentId, attendance.getLesson().getCourse().getId());
             if (performance != null) {

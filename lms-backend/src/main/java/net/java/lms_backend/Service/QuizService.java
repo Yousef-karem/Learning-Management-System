@@ -12,18 +12,18 @@ public class QuizService {
     private final QuizRepository quizRepository;
     private final QuizAttemptRepository quizAttemptRepository;
     private final CourseRepository courseRepository;
-    private final StudentRepository studentRepository;
     private final NotificationService notificationService;
+    private final UserRepository userRepository;
 
     public QuizService(QuizRepository quizRepository,
                        QuizAttemptRepository quizAttemptRepository,
                        CourseRepository courseRepository,
-                       StudentRepository studentRepository, NotificationRepository notificationRepository, NotificationService notificationService) {
+                       NotificationRepository notificationRepository, NotificationService notificationService, UserRepository userRepository) {
         this.quizRepository = quizRepository;
         this.quizAttemptRepository = quizAttemptRepository;
         this.courseRepository = courseRepository;
-        this.studentRepository = studentRepository;
         this.notificationService = notificationService;
+        this.userRepository = userRepository;
     }
 
     public Quiz createQuiz(Long courseId, QuizDTO quizDTO) {
@@ -38,7 +38,7 @@ public class QuizService {
 
         Quiz quiz = quizRepository.findById( quizId ).orElseThrow(() -> new RuntimeException("Quiz not found"));
 
-        Student student = studentRepository.findById( studentId ).orElseThrow(() -> new RuntimeException("Student not found"));
+        User student = userRepository.findById( studentId ).orElseThrow(() -> new RuntimeException("Student not found"));
 
         List<Question> questions = quiz.getCourse().getQuestionsBank();
 

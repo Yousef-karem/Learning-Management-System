@@ -32,6 +32,8 @@ class CourseControllerTest {
 
     @Mock
     private PerformanceRepo performanceRepo;
+    @Mock
+    private User mockUser;
 
     private CourseController courseController;
     private Coursedto coursedto;
@@ -96,13 +98,13 @@ class CourseControllerTest {
     @WithMockUser(roles = "INSTRUCTOR")
     void getCoursesByInstructor() {
         List<Coursedto> courses = Arrays.asList(coursedto);
-        when(courseService.getCoursesByInstructor(1L)).thenReturn(courses);
+        when(courseService.getCoursesByInstructor(mockUser.getId())).thenReturn(courses);
 
-        ResponseEntity<List<Coursedto>> response = courseController.getCoursesByInstructor(1L);
+        ResponseEntity<List<Coursedto>> response = courseController.getCoursesByInstructor(mockUser);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(courses, response.getBody());
-        verify(courseService).getCoursesByInstructor(1L);
+        verify(courseService).getCoursesByInstructor(mockUser.getId());
     }
 
     @Test
@@ -174,13 +176,13 @@ class CourseControllerTest {
     @Test
     @WithMockUser(roles = "STUDENT")
     void validateOtp() {
-        when(courseService.validateOtp(1L, "123456", 1L)).thenReturn(true);
+        when(courseService.validateOtp(1L, "123456", mockUser.getId())).thenReturn(true);
 
-        ResponseEntity<Boolean> response = courseController.validateOtp(1L, "123456", 1L);
+        ResponseEntity<Boolean> response = courseController.validateOtp(1L, "123456", mockUser);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(true, response.getBody());
-        verify(courseService).validateOtp(1L, "123456", 1L);
+        verify(courseService).validateOtp(1L, "123456", mockUser.getId());
     }
 
     @Test
@@ -201,7 +203,7 @@ class CourseControllerTest {
         List<Attendancedto> attendance = Arrays.asList(new Attendancedto());
         when(courseService.getAttendanceForLesson(1L)).thenReturn(attendance);
 
-        ResponseEntity<List<Attendancedto>> response = courseController.getAttendanceForLesson(1L, 1L);
+        ResponseEntity<List<Attendancedto>> response = courseController.getAttendanceForLesson(1L);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(attendance, response.getBody());

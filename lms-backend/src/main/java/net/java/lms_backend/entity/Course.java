@@ -44,7 +44,7 @@ public class Course {
     }
 
 
-    public void setInstructor(Instructor instructor) {
+    public void setInstructor(User instructor) {
         this.instructor = instructor;
     }
 
@@ -69,7 +69,7 @@ public class Course {
     }
 
 
-    public Instructor getInstructor() {
+    public User getInstructor() {
         return instructor;
     }
 
@@ -91,12 +91,13 @@ public class Course {
 
     @ManyToOne
     @JoinColumn(name = "instructor_id", nullable = false)
-    private Instructor instructor;
+    private User instructor;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Lesson> lessons = new ArrayList<>();
 
-    public Course(long id, String title, String description, String duration, List<MediaFiles> mediaFiles, User user, Instructor instructor) {
+    public Course(long id, String title, String description, String duration, List<MediaFiles> mediaFiles,
+                  User instructor) {
         this.id = id;
         this.title = title;
         this.description = description;

@@ -26,7 +26,6 @@ public class User implements UserDetails {
     @Column(nullable=false)
     private String password; // This will store the hashed password
     @Column(unique=true)
-
     private String email;
 
     private boolean initialAdmin;
@@ -69,6 +68,12 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role= Role.USER;
 
+    public User(Long id, String username, String email, Role role) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.role = role;
+    }
 
     public User(
                 String firstName,
@@ -186,5 +191,18 @@ public class User implements UserDetails {
         notifications.remove(notification);
         notification.setUser(null);
     }
+    //student relations
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Enrollment> enrollments;
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<QuizAttempt> quizAttempts;
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<Submission> submissions;
+
+    //instructor relations
+    @OneToMany(mappedBy = "instructor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Course> courses; // List to hold courses for the instructor
 
 }

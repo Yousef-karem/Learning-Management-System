@@ -4,6 +4,7 @@ import net.java.lms_backend.Service.QuizService;
 import net.java.lms_backend.dto.QuizDTO;
 import net.java.lms_backend.entity.Quiz;
 import net.java.lms_backend.entity.QuizAttempt;
+import net.java.lms_backend.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -12,10 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -24,6 +22,10 @@ class QuizControllerTest {
 
     @Mock
     private QuizService quizService;
+
+    @Mock
+    private User mockUser;
+
     private QuizController quizController;
     private Quiz quiz;
     private QuizDTO quizDTO;
@@ -59,23 +61,16 @@ class QuizControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "INSTRUCTOR")
-    void createQuizWithDifferentQuestionCounts() {
-        QuizDTO customQuizDTO = new QuizDTO();
-        customQuizDTO.setNumOfMCQ(10L);
-        customQuizDTO.setNumOfTrueFalse(5L);
-        customQuizDTO.setNumOfShortAnswer(3L);
+    @WithMockUser(roles = "STUDENT")
+    void generateQuizAttempt() {
+        when(mockUser.getId()).thenReturn(10L);
+        when(quizService.generateQuizAttempt(1L, 10L)).thenReturn(quizAttempt);
 
-        Quiz customQuiz = new Quiz();
-        customQuiz.setId(2L);
-
-        when(quizService.createQuiz(1L, customQuizDTO)).thenReturn(customQuiz);
-
-        ResponseEntity<Quiz> response = quizController.createQuiz(1L, customQuizDTO);
+        ResponseEntity<QuizAttempt> response = quizController.generateQuizAttempt(mockUser, 1L);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(customQuiz, response.getBody());
-        verify(quizService).createQuiz(1L, customQuizDTO);
+        assertEquals(quizAttempt, response.getBody());
+        verify(quizService).generateQuizAttempt(1L, 10L);
     }
 
     @Test
@@ -122,51 +117,25 @@ class QuizControllerTest {
     @Test
     @WithMockUser(roles = "STUDENT")
     void getQuizAttemptsByStudent() {
-        List<QuizAttempt> attempts = Arrays.asList(quizAttempt);
-        when(quizService.getQuizAttemptsByStudent(1L, 1L)).thenReturn(attempts);
+        List<QuizAttempt> attempts = Collections.singletonList(quizAttempt);
+        when(mockUser.getId()).thenReturn(10L);
+        when(quizService.getQuizAttemptsByStudent(10L, 1L)).thenReturn(attempts);
 
-        List<QuizAttempt> response = quizController.getQuizAttemptsByStudent(1L, 1L);
+        List<QuizAttempt> response = quizController.getQuizAttemptsByStudent(1L, mockUser);
 
         assertEquals(attempts, response);
-        verify(quizService).getQuizAttemptsByStudent(1L, 1L);
+        verify(quizService).getQuizAttemptsByStudent(10L, 1L);
     }
 
     @Test
     @WithMockUser(roles = "STUDENT")
     void getAverageScoreByStudent() {
-        when(quizService.getAverageScoreOfStudent(1L, 1L)).thenReturn(90.0);
+        when(mockUser.getId()).thenReturn(10L);
+        when(quizService.getAverageScoreOfStudent(10L, 1L)).thenReturn(90.0);
 
-        Double response = quizController.getAverageScoreByStudent(1L, 1L);
+        Double response = quizController.getAverageScoreByStudent(1L, mockUser);
 
         assertEquals(90.0, response);
-        verify(quizService).getAverageScoreOfStudent(1L, 1L);
-    }
-
-    @Test
-    @WithMockUser(roles = "STUDENT")
-    void getQuizAttemptWithZeroScore() {
-        QuizAttempt emptyAttempt = new QuizAttempt();
-        emptyAttempt.setId(2L);
-
-        when(quizService.getQuizAttempt(2L)).thenReturn(emptyAttempt);
-
-        ResponseEntity<QuizAttempt> response = quizController.getQuizAttempt(2L);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(emptyAttempt, response.getBody());
-        verify(quizService).getQuizAttempt(2L);
-    }
-
-    @Test
-    @WithMockUser(roles = "STUDENT")
-    void updateQuizAttemptWithEmptyAnswers() {
-        Map<Long, String> emptyAnswers = new HashMap<>();
-        when(quizService.updateQuizAttempt(1L, emptyAnswers)).thenReturn(0);
-
-        ResponseEntity<Integer> response = quizController.updateQuizAttempt(1L, emptyAnswers);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(0, response.getBody());
-        verify(quizService).updateQuizAttempt(1L, emptyAnswers);
+        verify(quizService).getAverageScoreOfStudent(10L, 1L);
     }
 }

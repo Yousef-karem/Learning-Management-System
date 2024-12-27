@@ -3,7 +3,6 @@ package net.java.lms_backend.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "notifications")
 public class Notification {

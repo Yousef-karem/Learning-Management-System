@@ -1,9 +1,7 @@
 package net.java.lms_backend.Service;
 
 import net.java.lms_backend.Repositrory.EnrollmentRepo;
-import net.java.lms_backend.entity.Enrollment;
-import net.java.lms_backend.entity.Notification;
-import net.java.lms_backend.entity.User;
+import net.java.lms_backend.entity.*;
 import net.java.lms_backend.Repositrory.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,9 +12,16 @@ import java.util.Optional;
 @Service
 public class NotificationService {
 
-    @Autowired
-    private NotificationRepository notificationRepository;
-    private EnrollmentRepo enrollmentRepo;
+    private final NotificationRepository notificationRepository;
+    private final EnrollmentRepo enrollmentRepo;
+    private final EmailService emailService;
+
+    public NotificationService(NotificationRepository notificationRepository, EnrollmentRepo enrollmentRepo, EmailService emailService) {
+        this.notificationRepository = notificationRepository;
+        this.enrollmentRepo = enrollmentRepo;
+        this.emailService = emailService;
+    }
+
     public List<Notification> getNotifications(User user, boolean onlyUnread) {
         if (onlyUnread) {
             return notificationRepository.findByUserAndRead(user, false);
@@ -27,17 +32,10 @@ public class NotificationService {
     public void notify(User user, String message) {
         Notification notification = new Notification(message, user);
         notificationRepository.save(notification);
+        Email email = new Email(message, EmailType.Notification,user);
+        emailService.send(email);
     }
 
-    public void markAsRead(Notification notification) {
-        notification.setRead(true);
-        notificationRepository.save(notification);
-    }
-
-    public void createNotification(String message, User user) {
-        Notification notification = new Notification(message, user);
-        notificationRepository.save(notification);
-    }
     public void markAsRead(Long id)
     {
         Optional <Notification>notification = notificationRepository.findById(id);
@@ -52,8 +50,7 @@ public class NotificationService {
             boolean confirmed=enrollment.getConfirmed();
             if(!confirmed)
                 continue;
-            Notification notification=new Notification(message,enrollment.getStudent());
-            notificationRepository.save(notification);
+            notify(enrollment.getStudent(),message);
         }
     }
 }

@@ -53,14 +53,14 @@ public class QuizController {
         return ResponseEntity.ok((int) performance);
     }
 
-    @GetMapping("/student/{studentId}/course/{courseId}")
-    public List<QuizAttempt> getQuizAttemptsByStudent( @PathVariable Long courseId, @PathVariable Long studentId) {
-        return quizService.getQuizAttemptsByStudent(studentId,courseId);
+    @GetMapping("/student/course/{courseId}")
+    public List<QuizAttempt> getQuizAttemptsByStudent( @PathVariable Long courseId,@AuthenticationPrincipal User user) {
+        return quizService.getQuizAttemptsByStudent(user.getId(),courseId);
     }
 
-    @GetMapping("/student/{studentId}/course/{courseId}/averageScore")
-    public Double getAverageScoreByStudent( @PathVariable Long courseId, @PathVariable Long studentId) {
-        return quizService.getAverageScoreOfStudent(studentId,courseId);
+    @GetMapping("/student/course/{courseId}/averageScore")
+    public Double getAverageScoreByStudent( @PathVariable Long courseId,@AuthenticationPrincipal User user) {
+        return quizService.getAverageScoreOfStudent(user.getId(), courseId);
     }
 
 }

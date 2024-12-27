@@ -4,6 +4,7 @@ import net.java.lms_backend.Service.StudentService;
 import net.java.lms_backend.Service.SubmissionService;
 import net.java.lms_backend.dto.StudentDTO;
 import net.java.lms_backend.dto.SubmissionDTO;
+import net.java.lms_backend.entity.User;
 import net.java.lms_backend.mapper.SubmissionMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,8 @@ class StudentControllerTest {
 
     @Mock
     private SubmissionMapper submissionMapper;
+    @Mock
+    private User mockUser;
 
     private StudentController studentController;
 
@@ -60,13 +63,13 @@ class StudentControllerTest {
                 "file", "test.txt", "text/plain", "test content".getBytes()
         );
 
-        when(submissionService.createSubmission(1L, 1L, file)).thenReturn(submissionDTO);
+        when(submissionService.createSubmission(1L, mockUser.getId(), file)).thenReturn(submissionDTO);
 
-        ResponseEntity<SubmissionDTO> response = studentController.createSubmission(1L, 1L, file);
+        ResponseEntity<SubmissionDTO> response = studentController.createSubmission(1L,  file,mockUser);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(submissionDTO, response.getBody());
-        verify(submissionService).createSubmission(1L, 1L, file);
+        verify(submissionService).createSubmission(1L, mockUser.getId(), file);
     }
 
     @Test
@@ -119,24 +122,24 @@ class StudentControllerTest {
     @Test
     @WithMockUser(roles = "STUDENT")
     void getStudentById() {
-        when(studentService.getStudentById(1L)).thenReturn(studentDTO);
+        when(studentService.getStudentById(mockUser.getId())).thenReturn(studentDTO);
 
-        ResponseEntity<StudentDTO> response = studentController.getStudentById(1L);
+        ResponseEntity<StudentDTO> response = studentController.getStudentById(mockUser);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(studentDTO, response.getBody());
-        verify(studentService).getStudentById(1L);
+        verify(studentService).getStudentById(mockUser.getId());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void getStudentByIdNotFound() {
-        when(studentService.getStudentById(1L)).thenReturn(null);
+        when(studentService.getStudentById(mockUser.getId())).thenReturn(null);
 
-        ResponseEntity<StudentDTO> response = studentController.getStudentById(1L);
+        ResponseEntity<StudentDTO> response = studentController.getStudentById(mockUser);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        verify(studentService).getStudentById(1L);
+        verify(studentService).getStudentById(mockUser.getId());
     }
 
     @Test

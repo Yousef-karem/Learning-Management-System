@@ -15,6 +15,12 @@ public class StudentDTO {
         this.email=email;
         this.username=username;
     }
+
+    public StudentDTO(String username, String email) {
+        this.username = username;
+        this.email = email;
+    }
+
     public  StudentDTO(){
     }
 

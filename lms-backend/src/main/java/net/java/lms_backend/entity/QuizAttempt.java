@@ -16,7 +16,7 @@ public class QuizAttempt {
     private Quiz quiz;
 
     @ManyToOne
-    private Student student;
+    private User student;
 
     @ElementCollection
     private Map<Long, String> answers; // Question ID to user answer
@@ -48,11 +48,11 @@ public class QuizAttempt {
         this.quiz = quiz;
     }
 
-    public Student getStudent() {
+    public User getStudent() {
         return student;
     }
 
-    public void setStudent(Student student) {
+    public void setStudent(User student) {
         this.student = student;
     }
 

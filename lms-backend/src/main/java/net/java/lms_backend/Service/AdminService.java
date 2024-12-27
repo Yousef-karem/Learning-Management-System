@@ -1,5 +1,6 @@
 package net.java.lms_backend.Service;
 
+import net.java.lms_backend.Repositrory.ConfirmationTokenRepository;
 import net.java.lms_backend.entity.User;
 import net.java.lms_backend.entity.Role;
 import net.java.lms_backend.Repositrory.UserRepository;
@@ -13,10 +14,11 @@ import java.util.Optional;
 public class AdminService {
 
     private final UserRepository userRepository;
-
+    private final ConfirmationTokenRepository confirmationTokenRepository;
     @Autowired
-    public AdminService(UserRepository userRepository) {
+    public AdminService(UserRepository userRepository, ConfirmationTokenRepository confirmationTokenRepository) {
         this.userRepository = userRepository;
+        this.confirmationTokenRepository = confirmationTokenRepository;
     }
 
     // Get all users in the system

@@ -4,6 +4,8 @@ import net.java.lms_backend.Repositrory.UserRepository;
 import net.java.lms_backend.Security.jwt.JwtTokenProvider;
 import net.java.lms_backend.dto.RegisterDTO;
 import net.java.lms_backend.entity.ConfirmationToken;
+import net.java.lms_backend.entity.Email;
+import net.java.lms_backend.entity.EmailType;
 import net.java.lms_backend.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,20 +24,21 @@ public class AuthService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-    private final EmailSender emailSender;
+    private final EmailService emailService;
     public AuthService(UserService userService,
                        EmailValidatorService emailValidatorService,
                        ConfirmationTokenService confirmationTokenService,
                        UserRepository userRepository,
                        BCryptPasswordEncoder bCryptPasswordEncoder,
-                       JwtTokenProvider jwtTokenProvider, EmailSender emailSender) {
+                       JwtTokenProvider jwtTokenProvider,
+                       EmailService emailService) {
         this.userService = userService;
         this.confirmationTokenService = confirmationTokenService;
 
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
-        this.emailSender = emailSender;
+        this.emailService = emailService;
     }
 
     public ResponseEntity<String> register(RegisterDTO requestRegister) {
@@ -55,9 +58,13 @@ public class AuthService {
         );//Encode the Password
         userRepository.save(user);
         //Email Confirmation
-        emailSender.sendEmail(user);
+        Email email=new Email("http://localhost:9090/api/auth/confirm?token="+emailService.createToken(user)
+                ,user, EmailType.Confirmation);
+        emailService.send(email);
         return ResponseEntity.status(HttpStatus.CREATED).body("Thank you for registering with us! " +
-                "We're excited to have you onboard.\n" + emailSender.sendEmail(user));
+                "We're excited to have you onboard.\n" +
+                "To complete your registration, please check your email for the activation " +
+               "link. Click the link in the email to activate your account and start using our services.");
     }
 
     @Transactional

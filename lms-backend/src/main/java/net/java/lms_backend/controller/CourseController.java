@@ -35,9 +35,9 @@ public class CourseController {
         Lesson savedLesson = courseService.addLessonToCourse(courseId, lesson);
         return new ResponseEntity<>(savedLesson, HttpStatus.CREATED);
     }
-    @GetMapping("/instructor/{instructorId}/courses")
-    public ResponseEntity<List<Coursedto>> getCoursesByInstructor(@PathVariable Long instructorId){
-        List<Coursedto> courses = courseService.getCoursesByInstructor(instructorId);
+    @GetMapping("/instructor/courses")
+    public ResponseEntity<List<Coursedto>> getCoursesByInstructor(@AuthenticationPrincipal User user){
+        List<Coursedto> courses = courseService.getCoursesByInstructor(user.getId());
         return ResponseEntity.ok(courses);
     }
     @DeleteMapping("/instructor/course/{id}")
@@ -69,8 +69,8 @@ public class CourseController {
         return ResponseEntity.ok(totalLessonsAttended);
     }
 
-    @GetMapping("/instructor/attendance/course/{courseId}/lessons/{lessonId}")
-    public ResponseEntity<List<Attendancedto>> getAttendanceForLesson(@PathVariable Long courseId, @PathVariable Long lessonId) {
+    @GetMapping("/instructor/attendance/course/lessons/{lessonId}")
+    public ResponseEntity<List<Attendancedto>> getAttendanceForLesson( @PathVariable Long lessonId) {
         List<Attendancedto> attendanceRecords = courseService.getAttendanceForLesson(lessonId);
         return ResponseEntity.ok(attendanceRecords);
     }
@@ -115,8 +115,9 @@ public class CourseController {
         return ResponseEntity.ok(course);
     }
     @PostMapping("/student/course/{courseId}/lessons/{lessonId}/validate-otp")
-    public ResponseEntity<Boolean> validateOtp(@PathVariable Long lessonId, @RequestParam String otp, @RequestParam Long studentId) {
-        boolean attend = courseService.validateOtp(lessonId, otp, studentId);
+    public ResponseEntity<Boolean> validateOtp(@PathVariable Long lessonId, @RequestParam String otp,
+                                               @AuthenticationPrincipal User user) {
+        boolean attend = courseService.validateOtp(lessonId, otp, user.getId());
         return ResponseEntity.ok(attend);
     }
     @GetMapping("student/course/{courseId}/media")

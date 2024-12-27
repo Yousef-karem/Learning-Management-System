@@ -45,5 +45,4 @@ public class AdminController {
         }
         return ResponseEntity.badRequest().body("Failed to deactivate user. User not found.");
     }
-    //add method to delete user
 }

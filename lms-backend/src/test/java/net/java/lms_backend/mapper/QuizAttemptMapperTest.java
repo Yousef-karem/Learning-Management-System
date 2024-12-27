@@ -3,7 +3,7 @@ package net.java.lms_backend.mapper;
 import net.java.lms_backend.dto.QuizAttemptDTO;
 import net.java.lms_backend.entity.Quiz;
 import net.java.lms_backend.entity.QuizAttempt;
-import net.java.lms_backend.entity.Student;
+import net.java.lms_backend.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class QuizAttemptMapperTest {
 
     private Quiz quiz;
-    private Student student;
+    private User student;
     private QuizAttempt quizAttempt;
 
     @BeforeEach
@@ -20,7 +20,7 @@ class QuizAttemptMapperTest {
         quiz = new Quiz();
         quiz.setId(1L);
 
-        student = new Student();
+        student = new User();
         student.setId(1L);
 
         quizAttempt = new QuizAttempt();

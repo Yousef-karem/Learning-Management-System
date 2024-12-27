@@ -5,10 +5,12 @@ import net.java.lms_backend.Service.SubmissionService;
 import net.java.lms_backend.dto.StudentDTO;
 import net.java.lms_backend.dto.SubmissionDTO;
 import net.java.lms_backend.entity.Submission;
+import net.java.lms_backend.entity.User;
 import net.java.lms_backend.mapper.SubmissionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,10 +35,9 @@ public class StudentController {
     @PostMapping("/{assignmentId}/submit")
     public ResponseEntity<SubmissionDTO> createSubmission(
             @PathVariable Long assignmentId,
-            @RequestParam Long studentId,
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam("file") MultipartFile file,  @AuthenticationPrincipal User user) {
 
-        SubmissionDTO createdSubmission = submissionService.createSubmission(assignmentId, studentId, file);
+        SubmissionDTO createdSubmission = submissionService.createSubmission(assignmentId, user.getId(), file);
         return new ResponseEntity<>(createdSubmission, HttpStatus.CREATED);
     }
     @GetMapping("/submissions")
@@ -64,9 +65,9 @@ public class StudentController {
         return ResponseEntity.ok(students);
     }
 
-    @GetMapping("/profile/{id}")  // Changed from "/{id}"
-    public ResponseEntity<StudentDTO> getStudentById(@PathVariable Long id) {
-        StudentDTO studentDTO = studentService.getStudentById(id);
+    @GetMapping("/profile")  // Changed from "/{id}"
+    public ResponseEntity<StudentDTO> getStudentById(@AuthenticationPrincipal User user) {
+        StudentDTO studentDTO = studentService.getStudentById(user.getId());
         if (studentDTO != null) {
             return ResponseEntity.ok(studentDTO);
         }

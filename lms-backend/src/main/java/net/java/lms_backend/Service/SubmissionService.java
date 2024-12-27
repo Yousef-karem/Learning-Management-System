@@ -31,19 +31,17 @@ public class SubmissionService {
     @Autowired
     private AssignmentRepository assignmentRepository;
 
-    @Autowired
-    private StudentRepository studentRepository;
+    private final UserRepository userRepository;
 
     private final SubmissionMapper submissionMapper;
     private final NotificationService notificationService;
 
     public SubmissionService(SubmissionRepository submissionRepository,
-                             StudentRepository studentRepository,
-                             AssignmentRepository assignmentRepository,
+                             AssignmentRepository assignmentRepository, UserRepository userRepository,
                              SubmissionMapper submissionMapper, NotificationService notificationService) {
         this.submissionRepository = submissionRepository;
-        this.studentRepository = studentRepository;
         this.assignmentRepository = assignmentRepository;
+        this.userRepository = userRepository;
         this.submissionMapper = submissionMapper;
         this.notificationService = notificationService;
     }
@@ -59,7 +57,7 @@ public class SubmissionService {
         Submission submission = new Submission();
         submission.setFileName(fileName);
         submission.setSubmittedAt(LocalDateTime.now());
-        submission.setStudent(studentRepository.findById(studentId)
+        submission.setStudent(userRepository.findById(studentId)
                 .orElseThrow(() -> new IllegalArgumentException("Student not found")));
         submission.setAssignment(assignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Assignment not found")));

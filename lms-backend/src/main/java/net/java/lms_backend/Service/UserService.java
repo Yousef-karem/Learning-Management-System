@@ -2,6 +2,8 @@ package net.java.lms_backend.Service;
 
 import net.java.lms_backend.Repositrory.UserRepository;
 import net.java.lms_backend.dto.UpdateUser;
+import net.java.lms_backend.entity.Email;
+import net.java.lms_backend.entity.EmailType;
 import net.java.lms_backend.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,14 +24,16 @@ public class UserService implements UserDetailsService {
     @Autowired
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final EmailSender emailSender;
+    private final EmailService emailService;
 
 
 
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, ConfirmationTokenService confirmationTokenService, EmailSender emailSender) {
+    public UserService(UserRepository userRepository,
+                       BCryptPasswordEncoder bCryptPasswordEncoder,
+                       ConfirmationTokenService confirmationTokenService, EmailService emailService) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.emailSender = emailSender;
+        this.emailService = emailService;
     }
 
     public Optional<User> getUser(long id)
@@ -86,17 +90,21 @@ public class UserService implements UserDetailsService {
                 user.setPassword(bCryptPasswordEncoder.encode(updateUser.getPassword()));
             }
 
-            String email = "";
+            String emailReturn = "";
             if(updateUser.getEmail() != null) {
                 user.setEnabled(false);  // Assuming email update requires reactivation or confirmation
                 user.setEmail(updateUser.getEmail());
-                email = emailSender.sendEmail(user);
+                Email email=new Email("http://localhost:9090/api/auth/confirm?token="+emailService.createToken(user)
+                        ,user, EmailType.Confirmation);
+                emailService.send(email);
+                emailReturn = "To complete your update, please check your email for the activation " +
+              "link. Click the link in the email to activate your account and start using our services.";
             }
 
             // Save the updated user back to the repository (make sure to call save)
             userRepository.save(user);
 
-            return ResponseEntity.ok("User updated successfully\n" + email);
+            return ResponseEntity.ok("User updated successfully\n" + emailReturn);
         }
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");

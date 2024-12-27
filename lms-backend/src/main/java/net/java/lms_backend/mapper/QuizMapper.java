@@ -9,6 +9,7 @@ public class QuizMapper {
         quiz.setNumOfMCQ(quizDTO.getNumOfMCQ());
         quiz.setNumOfTrueFalse(quizDTO.getNumOfTrueFalse());
         quiz.setNumOfShortAnswer(quizDTO.getNumOfShortAnswer());
+        quiz.setTitle(quizDTO.getTitle());
         return quiz;
     }
 }
