@@ -15,9 +15,8 @@ public class CourseMapper {
                 course.getDuration(),
                 course.getMediaFiles().stream()
                         .map(mediaFile -> new MediaFiles(mediaFile.getId(), mediaFile.getFileName()))
-                        .collect(Collectors.toList()),
+                        .collect(Collectors.toList())
                // course.getUser().getId(),
-                course.getInstructor().getId()
         );
 
 

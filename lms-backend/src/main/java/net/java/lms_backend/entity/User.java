@@ -68,8 +68,6 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role= Role.USER;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Course> courses=new ArrayList<Course>();
 
 
     public User(
@@ -91,9 +89,10 @@ public class User implements UserDetails {
     public User(Role role,User user)
     {
         this.role=role;
-        firstName=user.firstName;
-        lastName=user.lastName;
-        username=user.username;
+        this.id=user.getId();
+        this.firstName=user.firstName;
+        this.lastName=user.lastName;
+        this.username=user.username;
         password=user.password;
         email=user.email;
     }
@@ -168,5 +167,24 @@ public class User implements UserDetails {
     public void setFirstName(String firstName) {this.firstName=firstName;}
     public void setLastName(String lastName) {this.lastName=lastName;}
     public void setPassword(String password) {this.password=password;}
+
+    //notification system
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications = new ArrayList<>();
+
+    // Add methods to manage notifications
+    public List<Notification> getNotifications() {
+        return notifications;
+    }
+
+    public void addNotification(Notification notification) {
+        notifications.add(notification);
+        notification.setUser(this);
+    }
+
+    public void removeNotification(Notification notification) {
+        notifications.remove(notification);
+        notification.setUser(null);
+    }
 
 }

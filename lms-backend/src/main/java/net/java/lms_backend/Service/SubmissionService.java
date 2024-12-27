@@ -35,15 +35,17 @@ public class SubmissionService {
     private StudentRepository studentRepository;
 
     private final SubmissionMapper submissionMapper;
+    private final NotificationService notificationService;
 
     public SubmissionService(SubmissionRepository submissionRepository,
                              StudentRepository studentRepository,
                              AssignmentRepository assignmentRepository,
-                             SubmissionMapper submissionMapper) {
+                             SubmissionMapper submissionMapper, NotificationService notificationService) {
         this.submissionRepository = submissionRepository;
         this.studentRepository = studentRepository;
         this.assignmentRepository = assignmentRepository;
         this.submissionMapper = submissionMapper;
+        this.notificationService = notificationService;
     }
 
     public SubmissionDTO createSubmission(Long assignmentId, Long studentId, MultipartFile file) {
@@ -118,7 +120,9 @@ public class SubmissionService {
         submission.setGrade(grade);
         submission.setFeedback(feedback);
         Submission updatedSubmission = submissionRepository.save(submission);
-
+        notificationService.notify(submission.getStudent(),
+                "Your Score is "+grade+" \n"+
+                "feedback: "+feedback);
         return submissionMapper.toDTO(updatedSubmission);
     }
     public List<SubmissionDTO> getSubmissionsByAssignmentId(Long assignmentId) {

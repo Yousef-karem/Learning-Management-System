@@ -18,14 +18,17 @@ import java.util.List;
 @RequestMapping("/api/student")
 public class StudentController {
     private final StudentService studentService;
-    public StudentController(StudentService studentService) {
-        this.studentService = studentService;
-    }
-    @Autowired
-    private SubmissionService submissionService;
+    private final SubmissionService submissionService;
+    private final SubmissionMapper submissionMapper;
 
     @Autowired
-    private SubmissionMapper submissionMapper;
+    public StudentController(StudentService studentService,
+                             SubmissionService submissionService,
+                             SubmissionMapper submissionMapper) {
+        this.studentService = studentService;
+        this.submissionService = submissionService;
+        this.submissionMapper = submissionMapper;
+    }
 
     @PostMapping("/{assignmentId}/submit")
     public ResponseEntity<SubmissionDTO> createSubmission(
@@ -61,7 +64,7 @@ public class StudentController {
         return ResponseEntity.ok(students);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/profile/{id}")  // Changed from "/{id}"
     public ResponseEntity<StudentDTO> getStudentById(@PathVariable Long id) {
         StudentDTO studentDTO = studentService.getStudentById(id);
         if (studentDTO != null) {

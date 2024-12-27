@@ -27,6 +27,7 @@ public class CourseService {
     private final EnrollmentRepo enrollmentRepo;
     private final AttendanceRepo attendanceRepo;
     private final PerformanceRepo performanceRepo;
+    private final NotificationService notificationService;
 
     public UserRepository getUserRepo() {
         return userRepo;
@@ -61,7 +62,13 @@ public class CourseService {
     }
 
 
-    public CourseService(CourseRepository courseRepo, UserRepository userRepo, InstructorRepository instructorRepo, LessonRepositery lessonRepo, EnrollmentRepo enrollmentRepo, StudentRepository studentRepository, AttendanceRepo attendanceRepo, PerformanceRepo performanceRepo) {
+    public CourseService(CourseRepository courseRepo,
+                         UserRepository userRepo,
+                         InstructorRepository instructorRepo,
+                         LessonRepositery lessonRepo,
+                         EnrollmentRepo enrollmentRepo,
+                         StudentRepository studentRepository,
+                         AttendanceRepo attendanceRepo, PerformanceRepo performanceRepo, NotificationService notificationService) {
         this.courseRepo = courseRepo;
         this.userRepo = userRepo;
         this.instructorRepo = instructorRepo;
@@ -70,20 +77,30 @@ public class CourseService {
         this.studentRepository = studentRepository;
         this.attendanceRepo=attendanceRepo;
         this.performanceRepo=performanceRepo;
+
+        this.notificationService = notificationService;
     }
 
-    public Coursedto CreateCourse(Coursedto coursedto) {
+    public void confirmEnrollment(Long enrollmentId) {
+        Enrollment enrollment = enrollmentRepo.findById(enrollmentId)
+                .orElseThrow(() -> new RuntimeException("Student Enrollment not found with id: " + enrollmentId));
+        enrollment.setConfirmed(true);
+        notificationService.notify(enrollment.getStudent(),"Your enrol for course "+enrollment.getCourse().getTitle()
+                +" has been confirmed.");
+        enrollmentRepo.save(enrollment);
+    }
+    public Coursedto CreateCourse(User user,Coursedto coursedto) {
 //        User user = userRepo.findById(coursedto.getUser ().getId())
 //                .orElseThrow(() -> new RuntimeException("User  not found with id: " + coursedto.getUser ().getId()));
 
-        Instructor instructor = instructorRepo.findById(coursedto.getInstructorId())
-                .orElseThrow(() -> new RuntimeException("Instructor not found with id: " + coursedto.getInstructorId()));
+
+        Instructor instructor =new Instructor( userRepo.findById(user.getId())
+                .orElseThrow(() -> new RuntimeException("Instructor not found with id: " + user.getId())));
 
         Course course = new Course();
         course.setTitle(coursedto.getTitle());
         course.setDescription(coursedto.getDescription());
         course.setDuration(coursedto.getDuration());
-//        course.setUser (user);
         course.setInstructor(instructor);
 
         if (coursedto.getMediaFiles() != null) {
@@ -122,6 +139,7 @@ public class CourseService {
                 .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
 
         course.addLesson(lesson);
+        notificationService.notifyAll(courseId, lesson.getTitle() + " has been added to the course");
         return lessonRepo.save(lesson);
     }
     public void uploadMediaFiles(Long courseId, List<MultipartFile> files) {
@@ -146,6 +164,8 @@ public class CourseService {
             } catch (IOException e) {
                 throw new RuntimeException("Error saving file: " + file.getOriginalFilename(), e);
             }
+            notificationService.notifyAll(courseId,
+                    file.getOriginalFilename()+ " has been added to the course");
         }
         courseRepo.save(course);
     }
@@ -166,6 +186,7 @@ public class CourseService {
         performance.setCourse(course);
         performance.setTotalLessonsAttended(0);
         performanceRepo.save(performance);
+        notificationService.notify(course.getInstructor(),student.getUsername()+" has been enrolled to the course and waiting for confirm");
     }
 
     public List<StudentDTO> getEnrolledStudents(Long courseId) {
@@ -251,4 +272,24 @@ public class CourseService {
                 .collect(Collectors.toList());
     }
 
+    public void deleteStudentFromCourse(Long courseId, Long studentId) {
+        Enrollment enrollment = enrollmentRepo.findByCourseIdAndStudentId(courseId, studentId)
+                .orElseThrow(() -> new RuntimeException("Student Enrollment not found for courseId: " + courseId + " and studentId: " + studentId));
+        User user=userRepo.findById(studentId).orElseThrow(()
+                -> new RuntimeException("User not found for studentId: " + studentId));
+        Course course=courseRepo.findById(
+                courseId).orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+        notificationService.notify(user,"You have been deleted from course "+course.getTitle());
+        enrollmentRepo.delete(enrollment);
+
+        Performance performance = performanceRepo.findByStudentIdAndCourseId(studentId, courseId);
+        if (performance != null) {
+            performanceRepo.delete(performance);
+        }
+    }
+    public List<MediaFiles> getMediaFilesByCourseId(Long courseId) {
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+        return course.getMediaFiles();
+    }
 }

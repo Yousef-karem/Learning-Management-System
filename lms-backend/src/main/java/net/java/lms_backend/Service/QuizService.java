@@ -1,16 +1,7 @@
 package net.java.lms_backend.Service;
-import net.java.lms_backend.Repositrory.CourseRepository;
-import net.java.lms_backend.Repositrory.QuizAttemptRepository;
-import net.java.lms_backend.Repositrory.QuizRepository;
-import net.java.lms_backend.Repositrory.StudentRepository;
+import net.java.lms_backend.Repositrory.*;
 import net.java.lms_backend.dto.QuizDTO;
-import net.java.lms_backend.dto.QuizAttemptDTO;
-import net.java.lms_backend.entity.Course;
-import net.java.lms_backend.entity.Question;
-import net.java.lms_backend.entity.Quiz;
-import net.java.lms_backend.entity.QuizAttempt;
-import net.java.lms_backend.entity.Student;
-import net.java.lms_backend.mapper.QuizAttemptMapper;
+import net.java.lms_backend.entity.*;
 import net.java.lms_backend.mapper.QuizMapper;
 import org.springframework.stereotype.Service;
 
@@ -22,18 +13,24 @@ public class QuizService {
     private final QuizAttemptRepository quizAttemptRepository;
     private final CourseRepository courseRepository;
     private final StudentRepository studentRepository;
+    private final NotificationService notificationService;
 
-    public QuizService(QuizRepository quizRepository, QuizAttemptRepository quizAttemptRepository, CourseRepository courseRepository, StudentRepository studentRepository) {
+    public QuizService(QuizRepository quizRepository,
+                       QuizAttemptRepository quizAttemptRepository,
+                       CourseRepository courseRepository,
+                       StudentRepository studentRepository, NotificationRepository notificationRepository, NotificationService notificationService) {
         this.quizRepository = quizRepository;
         this.quizAttemptRepository = quizAttemptRepository;
         this.courseRepository = courseRepository;
         this.studentRepository = studentRepository;
+        this.notificationService = notificationService;
     }
 
     public Quiz createQuiz(Long courseId, QuizDTO quizDTO) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found"));
         Quiz quiz = QuizMapper.toEntity(quizDTO);
         quiz.setCourse(course);
+        notificationService.notifyAll(courseId,"There is a new quiz");
         return quizRepository.save(quiz);
     }
 
@@ -96,7 +93,9 @@ public class QuizService {
 
         quizAttempt.setScore(score);
         quizAttemptRepository.save(quizAttempt);
-
+        notificationService.notify( quizAttempt.getStudent(),
+                "You got score "+score+" at Quiz"
+                );
         return score;
     }
     public QuizAttempt getQuizAttempt(Long quizAttemptId) {

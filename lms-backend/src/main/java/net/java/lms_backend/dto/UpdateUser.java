@@ -14,6 +14,10 @@ public class UpdateUser {
         this.email = email;
         this.password = password;
     }
+    public UpdateUser()
+    {
+
+    }
 
     public String getPassword() {
         return password;

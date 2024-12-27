@@ -13,13 +13,9 @@ import static net.java.lms_backend.mapper.UserMapper.ToUserLogin;
 public class AuthController {
 
     private final AuthService authService;
-//    private final AuthenticationManager authenticationManager;
-//    private final JwtUtil jwtUtil;
 
     public AuthController(AuthService authService) {
         this.authService = authService;
-//        this.authenticationManager = authenticationManager;
-//        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("login")

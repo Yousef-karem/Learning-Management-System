@@ -37,7 +37,6 @@ class CourseMapperTest {
         assertEquals(course.getTitle(), coursedto.getTitle());
         assertEquals(course.getDescription(), coursedto.getDescription());
         assertEquals(course.getDuration(), coursedto.getDuration());
-        assertEquals(course.getInstructor().getId(), coursedto.getInstructorId());
         assertEquals(course.getMediaFiles().size(), coursedto.getMediaFiles().size());
         assertEquals(course.getMediaFiles().get(0).getFileName(), coursedto.getMediaFiles().get(0).getFileName());
         assertEquals(course.getMediaFiles().get(1).getFileName(), coursedto.getMediaFiles().get(1).getFileName());
@@ -56,8 +55,7 @@ class CourseMapperTest {
                 "Advanced SW",
                 "course on Sw",
                 "6 weeks",
-                List.of(mediaFile1,mediaFile2),
-                instructor.getId()
+                List.of(mediaFile1,mediaFile2)
         );
         Course course=CourseMapper.maptoCourse(coursedto);
         assertEquals(coursedto.getId(),course.getId());

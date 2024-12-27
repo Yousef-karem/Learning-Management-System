@@ -1,14 +1,10 @@
 package net.java.lms_backend.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
 @Entity
 public class Course {
     @Id
@@ -47,9 +43,6 @@ public class Course {
         this.questionsBank = questionsBank;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
 
     public void setInstructor(Instructor instructor) {
         this.instructor = instructor;
@@ -75,9 +68,6 @@ public class Course {
         return questionsBank;
     }
 
-    public User getUser() {
-        return user;
-    }
 
     public Instructor getInstructor() {
         return instructor;
@@ -98,9 +88,6 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questionsBank = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 
     @ManyToOne
     @JoinColumn(name = "instructor_id", nullable = false)
@@ -115,7 +102,6 @@ public class Course {
         this.description = description;
         this.duration = duration;
         this.mediaFiles = mediaFiles;
-        this.user = user;
         this.instructor = instructor;
     }
 

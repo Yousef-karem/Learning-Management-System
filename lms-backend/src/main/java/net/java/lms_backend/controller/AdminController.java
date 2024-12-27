@@ -27,7 +27,7 @@ public class AdminController {
 
 
     // Assign a specific role to a user
-    @PostMapping("/assign-role/{userId}")
+    @PutMapping("/assign-role/{userId}")
     public ResponseEntity<String> assignRole(@PathVariable Long userId, @RequestParam String role) {
         boolean success = adminService.assignRole(userId, role);
         if (success) {
@@ -37,7 +37,7 @@ public class AdminController {
     }
 
     // Deactivate a user account
-    @PostMapping("/deactivate/{userId}")
+    @PutMapping("/deactivate/{userId}")
     public ResponseEntity<String> deactivateUser(@PathVariable Long userId) {
         boolean success = adminService.deactivateUser(userId);
         if (success) {
@@ -45,4 +45,5 @@ public class AdminController {
         }
         return ResponseEntity.badRequest().body("Failed to deactivate user. User not found.");
     }
+    //add method to delete user
 }

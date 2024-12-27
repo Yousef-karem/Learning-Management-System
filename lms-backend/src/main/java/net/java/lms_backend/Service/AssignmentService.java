@@ -23,11 +23,14 @@ public class AssignmentService {
 
     @Autowired
     private AssignmentMapper assignmentMapper;
+    @Autowired
+    private NotificationService notificationService;
 
     // Create a new assignment
     public AssignmentDTO createAssignment(AssignmentDTO dto) {
         Assignment assignment = assignmentMapper.toEntity(dto);
         Assignment savedAssignment = assignmentRepository.save(assignment);
+        notificationService.notifyAll(dto.getCourseId(),"Assignment " +dto.getTitle()+" has been added");
         return assignmentMapper.toDTO(savedAssignment);
     }
 

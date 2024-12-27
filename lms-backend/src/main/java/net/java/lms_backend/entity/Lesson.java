@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import  net.java.lms_backend.entity.Attendance;
+import org.aspectj.apache.bcel.generic.RET;
+
 import java.util.List;
 
 @Entity
@@ -49,5 +51,9 @@ public class Lesson {
 
     public String getTitle() {
         return title;
+    }
+
+    public String getContent() {
+        return content;
     }
 }

@@ -12,7 +12,7 @@ public class EmailSender {
     private  final net.java.lms_backend.Repositrory.EmailSender emailRepository;
     private final ConfirmationTokenService confirmationTokenService;
     public EmailSender(net.java.lms_backend.Repositrory.EmailSender emailSender, ConfirmationTokenService confirmationTokenService) {
-       this.emailRepository = emailSender;
+        this.emailRepository = emailSender;
         this.confirmationTokenService = confirmationTokenService;
     }
     public String createToken(User user)
