@@ -163,6 +163,14 @@ For further inquiries or collaboration, please contact:
 
 - **Yousef Karem**\
   [GitHub Profile](https://github.com/Yousef-karem)
+- **Juliana George**\
+[GitHub Profile](https://github.com/julianageorge)
+- **Ephraim Youssef**\
+[GitHub Profile](https://github.com/EphraimYoussef)
+- **Ramez Ragaay**\
+[GitHub Profile](https://github.com/RamezRagaay)
+- **Arsany Nageh**\
+[GitHub Profile](https://github.com/Arsany11)
 
 ---
 
